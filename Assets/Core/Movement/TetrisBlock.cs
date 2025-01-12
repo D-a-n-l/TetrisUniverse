@@ -1,24 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 public class TetrisBlock : MonoBehaviour
 {
     public float fallSpeed = 1.0f; // Скорость падения
     private float fallTimer;
 
-    private TetrisGrid grid3D;
-
     [SerializeField]
     private Transform[] _tiles;
 
-    void Start()
+    private TetrisGrid _grid;
+
+    [Inject]
+    private void Construct(TetrisGrid grid)
     {
-        grid3D = FindObjectOfType<TetrisGrid>();
-        if (grid3D == null)
-        {
-            Debug.LogError("Grid3D not found in the scene!");
-        }
+        _grid = grid;
     }
 
     void Update()
@@ -79,7 +77,7 @@ public class TetrisBlock : MonoBehaviour
         foreach (Transform child in transform)
         {
             Vector3 position = RoundVector(child.position);
-            if (!grid3D.IsInsideGrid(position) || grid3D.IsCellOccupied(position))
+            if (!_grid.IsInsideGrid(position) || _grid.IsCellOccupied(position))
             {
                 return false;
             }
@@ -94,9 +92,9 @@ public class TetrisBlock : MonoBehaviour
             child.SetParent(null); // Отвязываем блок от родителя
 
             Vector3 position = RoundVector(child.position);
-            if (grid3D.IsInsideGrid(position))
+            if (_grid.IsInsideGrid(position))
             {
-                grid3D.AddBlockToGrid(child); // Добавляем дочерний блок в сетку
+                _grid.AddBlockToGrid(child); // Добавляем дочерний блок в сетку
             }
 
         }
@@ -106,7 +104,7 @@ public class TetrisBlock : MonoBehaviour
 
     private void CheckForCompleteRows()
     {
-        grid3D.ClearFullRows();
+        _grid.ClearFullRows();
     }
 
     private void SpawnNextBlock()
