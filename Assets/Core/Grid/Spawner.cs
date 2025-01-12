@@ -1,13 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
+using Zenject;
 
 public class Spawner : MonoBehaviour
 {
-    public static Spawner Instance; // Singleton
+    public static Spawner Instance;
 
-    public GameObject[] blockPrefabs; // Префабы фигур
-    public Transform spawnPoint; // Точка спавна
+    [SerializeField]
+    private TetrisBlock[] _blocks;
+
+    private TetrisGrid _grid;
+
+    [Inject]
+    private void Construct(TetrisGrid grid)
+    {
+        _grid = grid;
+    }
 
     private void Awake()
     {
@@ -18,7 +28,13 @@ public class Spawner : MonoBehaviour
 
     public void SpawnBlock()
     {
-        int randomIndex = Random.Range(0, blockPrefabs.Length);
-        Instantiate(blockPrefabs[randomIndex], spawnPoint.position, Quaternion.identity);
+        int randomIndex = Random.Range(0, _blocks.Length);
+
+        Vector3 spawnPosition = new Vector3(
+            _grid.Radius.x / 2,
+            _grid.Radius.y,
+            _grid.Radius.z / 2);
+
+        Instantiate(_blocks[randomIndex], spawnPosition, Quaternion.identity);
     }
 }
