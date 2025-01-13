@@ -6,6 +6,9 @@ public class VisualGrid : MonoBehaviour
     [SerializeField]
     private LineRenderer _line;
 
+    [SerializeField]
+    private Vector3 _offset;
+
     private GameObject _last;
 
     private TetrisGrid _grid;
@@ -25,7 +28,7 @@ public class VisualGrid : MonoBehaviour
     {
         DestroyLastGrid();
 
-        Vector3 coordPosition = new Vector3(0, 0, 0);
+        Vector3 coordPosition = Vector3.zero + _offset;
 
         Transform parent = new GameObject("VisualGrid").transform;
 
