@@ -19,10 +19,71 @@ public class TetrisBlock : MonoBehaviour
         _grid = grid;
     }
 
-    void Update()
+    private void Start()
     {
-        HandleInput();
-        HandleFalling();
+        StopAllCoroutines();
+
+        StartCoroutine(Fall());
+
+        PlayerButtons.Instance.Forward.onClick.AddListener(() =>
+        {
+            Move(Vector3.forward);
+        });
+
+        PlayerButtons.Instance.Left.onClick.AddListener(() =>
+        {
+            Move(Vector3.left);
+        });
+
+        PlayerButtons.Instance.Back.onClick.AddListener(() =>
+        {
+            Move(Vector3.back);
+        });
+
+        PlayerButtons.Instance.Right.onClick.AddListener(() =>
+        {
+            Move(Vector3.right);
+        });
+
+        PlayerButtons.Instance.Fall.OnPressed.AddListener(NewMethod);
+
+        PlayerButtons.Instance.Fall.OnDown.AddListener(() => { StopAllCoroutines(); });
+
+        PlayerButtons.Instance.Fall.OnUp.AddListener(() => { StopAllCoroutines(); StartCoroutine(Fall()); });
+    }
+
+    //void Update()
+    //{
+    //    HandleInput();
+    //    HandleFalling();
+    //}
+
+    private void NewMethod()
+    {
+        Move(Vector3.down);
+
+        if (!Move(Vector3.down)) // ≈сли двигатьс€ вниз нельз€, остановить фигуру
+        {
+            AddToGrid();
+            //CheckForCompleteRows();
+            GlobalEvents.OnMovementFinished?.Invoke();
+        }
+    }
+
+    public IEnumerator Fall()
+    {
+        yield return new WaitForSeconds(1f);
+
+        Move(Vector3.down);
+
+        if (!Move(Vector3.down)) // ≈сли двигатьс€ вниз нельз€, остановить фигуру
+        {
+            AddToGrid();
+            //CheckForCompleteRows();
+            GlobalEvents.OnMovementFinished?.Invoke();
+        }
+
+        StartCoroutine(Fall());
     }
 
     private void HandleInput()
