@@ -5,8 +5,6 @@ using Zenject;
 
 public class Spawner : MonoBehaviour
 {
-    public static Spawner Instance;
-
     [SerializeField]
     private TetrisBlock[] _blocks;
 
@@ -18,14 +16,12 @@ public class Spawner : MonoBehaviour
         _grid = grid;
     }
 
-    private void Awake()
+    private void Start()
     {
-        Instance = this;
-
-        SpawnBlock();
+        GlobalEvents.OnMovementFinished += Spawn;
     }
 
-    public void SpawnBlock()
+    public void Spawn()
     {
         int randomIndex = Random.Range(0, _blocks.Length);
 

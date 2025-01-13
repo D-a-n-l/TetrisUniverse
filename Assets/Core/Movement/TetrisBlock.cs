@@ -40,13 +40,14 @@ public class TetrisBlock : MonoBehaviour
     private void HandleFalling()
     {
         fallTimer += Time.deltaTime;
+
         if (fallTimer >= fallSpeed)
         {
             if (!Move(Vector3.down)) // Если двигаться вниз нельзя, остановить фигуру
             {
                 AddToGrid();
                 //CheckForCompleteRows();
-                SpawnNextBlock();
+                GlobalEvents.OnMovementFinished?.Invoke();
             }
             fallTimer = 0;
         }
@@ -55,6 +56,7 @@ public class TetrisBlock : MonoBehaviour
     private bool Move(Vector3 direction)
     {
         transform.position += direction;
+
         if (!IsValidPosition())
         {
             transform.position -= direction; // Вернуть на место
@@ -82,6 +84,7 @@ public class TetrisBlock : MonoBehaviour
                 return false;
             }
         }
+
         return true;
     }
 
@@ -105,11 +108,6 @@ public class TetrisBlock : MonoBehaviour
     private void CheckForCompleteRows()
     {
         _grid.ClearFullRows();
-    }
-
-    private void SpawnNextBlock()
-    {
-        Spawner.Instance.SpawnBlock(); // Предположим, есть GameManager для управления спавном
     }
 
     private Vector3 RoundVector(Vector3 vector)

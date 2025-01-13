@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,8 @@ public class TetrisGrid : MonoBehaviour
     private void Start()
     {
         grid = new Transform[_radius.x, _radius.y, _radius.z];
+
+        GlobalEvents.OnMovementFinished += ClearFullRows;
     }
 
     // ѕроверка, находитс€ ли позици€ внутри сетки
