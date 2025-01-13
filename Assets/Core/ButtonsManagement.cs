@@ -14,11 +14,6 @@ public class ButtonsManagement : MonoBehaviour
             presetButton.Button.onClick.AddListener(presetButton.Event.Invoke);
         }
     }
-
-    public void a()
-    {
-        print("11");
-    }
 }
 
 [System.Serializable]
