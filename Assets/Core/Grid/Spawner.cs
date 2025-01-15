@@ -10,6 +10,8 @@ public class Spawner : MonoBehaviour
 
     private TetrisGrid _grid;
 
+    public TetrisBlock lastBlock;
+
     [Inject]
     private void Construct(TetrisGrid grid)
     {
@@ -30,7 +32,7 @@ public class Spawner : MonoBehaviour
             _grid.Radius.y,
             _grid.Radius.z / 2);
 
-        Instantiate(_blocks[randomIndex], spawnPosition, Quaternion.identity);
+        lastBlock = Instantiate(_blocks[randomIndex], spawnPosition, _blocks[randomIndex].transform.rotation);
     }
 
     private void OnDrawGizmos()

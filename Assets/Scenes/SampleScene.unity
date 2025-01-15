@@ -1542,7 +1542,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f48676d34b8eb4a8fb2bcb145b9a41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: {x: 12, y: 20, z: 2}
+  _radius: {x: 12, y: 20, z: 12}
 --- !u!4 &921187149
 Transform:
   m_ObjectHideFlags: 0
@@ -1571,7 +1571,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _blocks:
-  - {fileID: 2379685347464428682, guid: cc0dc409966166841ab9e6dba5dcb69a, type: 3}
+  - {fileID: 2379685347464428682, guid: 6894bed5ba4f9314a9a9bf18c0385360, type: 3}
+  lastBlock: {fileID: 0}
 --- !u!114 &921187151
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -45,6 +45,16 @@ public class TetrisBlock : MonoBehaviour
             Move(Vector3.right);
         });
 
+        PlayerButtons.Instance.RotateX.onClick.AddListener(() =>
+        {
+            Rotate(Vector3.left);
+        });
+
+        PlayerButtons.Instance.RotateZ.onClick.AddListener(() =>
+        {
+            Rotate(Vector3.forward);
+        });
+
         PlayerButtons.Instance.Fall.OnPressed.AddListener(NewMethod);
 
         PlayerButtons.Instance.Fall.OnDown.AddListener(() => { StopAllCoroutines(); });
@@ -129,6 +139,7 @@ public class TetrisBlock : MonoBehaviour
     private void Rotate(Vector3 axis)
     {
         transform.Rotate(axis * 90);
+
         if (!IsValidPosition())
         {
             transform.Rotate(-axis * 90); // Отменить вращение
@@ -140,6 +151,7 @@ public class TetrisBlock : MonoBehaviour
         foreach (Transform child in transform)
         {
             Vector3 position = RoundVector(child.position);
+            //print($"{!_grid.IsInsideGrid(position)}  {_grid.IsCellOccupied(position)}");
             if (!_grid.IsInsideGrid(position) || _grid.IsCellOccupied(position))
             {
                 return false;

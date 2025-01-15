@@ -11,11 +11,11 @@ public class TetrisGrid : MonoBehaviour
     public Vector3Int Radius => _radius;
 
     private Transform[,,] grid; // Трёхмерный массив для хранения блоков
-
+    private Spawner spawner;
     private void Start()
     {
         grid = new Transform[_radius.x, _radius.y, _radius.z];
-
+        spawner = FindAnyObjectByType<Spawner>();
         GlobalEvents.OnMovementFinished += ClearFullRows;
     }
 
@@ -23,7 +23,7 @@ public class TetrisGrid : MonoBehaviour
     public bool IsInsideGrid(Vector3 position)
     {
         return position.x >= 0 && position.x < _radius.x &&
-               position.y >= 0 && position.y < _radius.y &&
+               position.y >= 0 && position.y <= _radius.y &&
                position.z >= 0 && position.z < _radius.z;
     }
 
@@ -31,6 +31,9 @@ public class TetrisGrid : MonoBehaviour
     public bool IsCellOccupied(Vector3 position)
     {
         if (!IsInsideGrid(position)) return true; // За пределами сетки всегда занято
+
+        if ((int)position.y == _radius.y) return false; //когда фигура выше раудиса
+
         return grid[(int)position.x, (int)position.y, (int)position.z] != null;
     }
 
