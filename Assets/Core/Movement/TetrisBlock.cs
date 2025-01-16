@@ -24,25 +24,25 @@ public class TetrisBlock : MonoBehaviour
         StopAllCoroutines();
 
         StartCoroutine(Fall());
-
+        PlayerButtons.Instance.RemoveAllListeners();
         PlayerButtons.Instance.Forward.onClick.AddListener(() =>
         {
-            Move(Vector3.forward);
+            Move(new Vector3(CameraMovement.LocalForward.x, 0f, CameraMovement.LocalForward.y));
         });
 
         PlayerButtons.Instance.Left.onClick.AddListener(() =>
         {
-            Move(Vector3.left);
+            Move(new Vector3(-CameraMovement.LocalRight.x, 0f, -CameraMovement.LocalRight.y));
         });
 
         PlayerButtons.Instance.Back.onClick.AddListener(() =>
         {
-            Move(Vector3.back);
+            Move(new Vector3(-CameraMovement.LocalForward.x, 0f, -CameraMovement.LocalForward.y));
         });
 
         PlayerButtons.Instance.Right.onClick.AddListener(() =>
         {
-            Move(Vector3.right);
+            Move(new Vector3(CameraMovement.LocalRight.x, 0f, CameraMovement.LocalRight.y));
         });
 
         PlayerButtons.Instance.RotateX.onClick.AddListener(() =>
