@@ -1,17 +1,20 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
-public class TetrisBlock : MonoBehaviour
+public class MovementBlock : MonoBehaviour
 {
-    public float fallSpeed = 1.0f; // Скорость падения
-    private float fallTimer;
+    [SerializeField]
+    private float _timeFall = 1f;
 
     [SerializeField]
     private Transform[] _tiles;
 
     private TetrisGrid _grid;
+
+    private WaitForSeconds _waitFall;
+
+    private Vector3 _directionFall = new Vector3(0, -0.5f, 0);
 
     [Inject]
     private void Construct(TetrisGrid grid)
@@ -21,10 +24,14 @@ public class TetrisBlock : MonoBehaviour
 
     private void Start()
     {
+        _waitFall = new WaitForSeconds(_timeFall);
+
         StopAllCoroutines();
 
-        StartCoroutine(Fall());
+        StartCoroutine(FallByTime());
+
         PlayerButtons.Instance.RemoveAllListeners();
+
         PlayerButtons.Instance.Forward.onClick.AddListener(() =>
         {
             Move(new Vector3(CameraMovement.LocalForward.x, 0f, CameraMovement.LocalForward.y));
@@ -55,73 +62,32 @@ public class TetrisBlock : MonoBehaviour
             Rotate(Vector3.forward);
         });
 
-        PlayerButtons.Instance.Fall.OnPressed.AddListener(NewMethod);
+        PlayerButtons.Instance.Fall.OnPressed.AddListener(Fall);
 
-        PlayerButtons.Instance.Fall.OnDown.AddListener(() => { StopAllCoroutines(); });
+        PlayerButtons.Instance.Fall.OnDown.AddListener(StopAllCoroutines);
 
-        PlayerButtons.Instance.Fall.OnUp.AddListener(() => { StopAllCoroutines(); StartCoroutine(Fall()); });
+        PlayerButtons.Instance.Fall.OnUp.AddListener(() => { StopAllCoroutines(); StartCoroutine(FallByTime()); });
     }
 
-    //void Update()
-    //{
-    //    HandleInput();
-    //    HandleFalling();
-    //}
-
-    private void NewMethod()
+    private void Fall()
     {
-        Move(Vector3.down);
+        Move(_directionFall);
 
-        if (!Move(Vector3.down)) // Если двигаться вниз нельзя, остановить фигуру
+        if (!Move(_directionFall))
         {
             AddToGrid();
-            //CheckForCompleteRows();
+
             GlobalEvents.OnMovementFinished?.Invoke();
         }
     }
 
-    public IEnumerator Fall()
+    public IEnumerator FallByTime()
     {
-        yield return new WaitForSeconds(1f);
+        yield return _waitFall;
 
-        Move(Vector3.down);
+        Fall();
 
-        if (!Move(Vector3.down)) // Если двигаться вниз нельзя, остановить фигуру
-        {
-            AddToGrid();
-            //CheckForCompleteRows();
-            GlobalEvents.OnMovementFinished?.Invoke();
-        }
-
-        StartCoroutine(Fall());
-    }
-
-    private void HandleInput()
-    {
-        if (Input.GetKeyDown(KeyCode.LeftArrow)) Move(Vector3.left);
-        else if (Input.GetKeyDown(KeyCode.RightArrow)) Move(Vector3.right);
-        else if (Input.GetKeyDown(KeyCode.W)) Move(Vector3.forward);
-        else if (Input.GetKeyDown(KeyCode.S)) Move(Vector3.back);
-        else if (Input.GetKeyDown(KeyCode.DownArrow)) Move(Vector3.down);
-        else if (Input.GetKeyDown(KeyCode.UpArrow)) Rotate(Vector3.up);
-        else if (Input.GetKeyDown(KeyCode.Q)) Rotate(Vector3.left);
-        else if (Input.GetKeyDown(KeyCode.E)) Rotate(Vector3.forward);
-    }
-
-    private void HandleFalling()
-    {
-        fallTimer += Time.deltaTime;
-
-        if (fallTimer >= fallSpeed)
-        {
-            if (!Move(Vector3.down)) // Если двигаться вниз нельзя, остановить фигуру
-            {
-                AddToGrid();
-                //CheckForCompleteRows();
-                GlobalEvents.OnMovementFinished?.Invoke();
-            }
-            fallTimer = 0;
-        }
+        StartCoroutine(FallByTime());
     }
 
     private bool Move(Vector3 direction)
@@ -131,6 +97,7 @@ public class TetrisBlock : MonoBehaviour
         if (!IsValidPosition())
         {
             transform.position -= direction; // Вернуть на место
+
             return false;
         }
         return true;
@@ -150,8 +117,8 @@ public class TetrisBlock : MonoBehaviour
     {
         foreach (Transform child in transform)
         {
-            Vector3 position = RoundVector(child.position);
-            //print($"{!_grid.IsInsideGrid(position)}  {_grid.IsCellOccupied(position)}");
+            Vector3 position = MathfCalculations.RoundVector(child.position);
+
             if (!_grid.IsInsideGrid(position) || _grid.IsCellOccupied(position))
             {
                 return false;
@@ -167,7 +134,8 @@ public class TetrisBlock : MonoBehaviour
         {
             child.SetParent(null); // Отвязываем блок от родителя
 
-            Vector3 position = RoundVector(child.position);
+            Vector3 position = MathfCalculations.RoundVector(child.position);
+
             if (_grid.IsInsideGrid(position))
             {
                 _grid.AddBlockToGrid(child); // Добавляем дочерний блок в сетку
@@ -176,15 +144,5 @@ public class TetrisBlock : MonoBehaviour
         }
 
         Destroy(gameObject); // Удаляем только объект фигуры, блоки остаются в сетке
-    }
-
-    private void CheckForCompleteRows()
-    {
-        _grid.ClearFullRows();
-    }
-
-    private Vector3 RoundVector(Vector3 vector)
-    {
-        return new Vector3(Mathf.Round(vector.x), Mathf.Round(vector.y), Mathf.Round(vector.z));
     }
 }
