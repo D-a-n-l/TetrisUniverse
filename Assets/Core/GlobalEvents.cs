@@ -7,5 +7,7 @@ public static class GlobalEvents
 
     public static Action<int> OnDeletedRow;
 
+    public static Action OnEditedGrid;
+
     public static Action OnGameOver;
 }

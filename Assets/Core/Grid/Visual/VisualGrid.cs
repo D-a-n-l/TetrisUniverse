@@ -22,6 +22,8 @@ public class VisualGrid : MonoBehaviour
     private void Start()
     {
         CreateGrid();
+
+        GlobalEvents.OnEditedGrid += CreateGrid;
     }
 
     public void CreateGrid()

@@ -20,9 +20,12 @@ public class Spawner : MonoBehaviour
 
     private void Start()
     {
-        transform.position = new Vector3(_grid.Radius.x / 2, 0, _grid.Radius.z / 2);//init
-
         GlobalEvents.OnMovementFinished += Spawn;
+    }
+
+    public void Init()
+    {
+        transform.position = new Vector3(_grid.Radius.x / 2, 0, _grid.Radius.z / 2);
     }
 
     public void Spawn()
