@@ -40,7 +40,7 @@ public class TetrisGrid : MonoBehaviour
     // Добавление блока в сетку
     public void AddBlockToGrid(Transform block)
     {
-        Vector3 position = RoundVector(block.position);
+        Vector3 position = MathfCalculations.RoundVector(block.position);
 
         if (IsInsideGrid(position))
         {
@@ -51,17 +51,11 @@ public class TetrisGrid : MonoBehaviour
     // Удаление блока из сетки
     public void RemoveBlockFromGrid(Transform block)
     {
-        Vector3 position = RoundVector(block.position);
+        Vector3 position = MathfCalculations.RoundVector(block.position);
         if (IsInsideGrid(position))
         {
             grid[(int)position.x, (int)position.y, (int)position.z] = null;
         }
-    }
-
-    // Округление позиции до целых чисел
-    private Vector3 RoundVector(Vector3 vector)
-    {
-        return new Vector3(Mathf.Round(vector.x), Mathf.Round(vector.y), Mathf.Round(vector.z));
     }
 
     // Очистка полностью заполненной строки (по высоте Y)
