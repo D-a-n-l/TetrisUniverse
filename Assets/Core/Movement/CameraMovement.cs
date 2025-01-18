@@ -75,7 +75,10 @@ public class CameraMovement : MonoBehaviour
     private void Awake()
     {
         instance = this;
+    }
 
+    private void Start()
+    {
         Init();
     }
 

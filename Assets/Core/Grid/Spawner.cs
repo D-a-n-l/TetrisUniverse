@@ -21,6 +21,8 @@ public class Spawner : MonoBehaviour
     private void Start()
     {
         GlobalEvents.OnMovementFinished += Spawn;
+
+        Init();
     }
 
     public void Init()

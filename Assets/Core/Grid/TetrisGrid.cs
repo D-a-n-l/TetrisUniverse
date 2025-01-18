@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 public class TetrisGrid : MonoBehaviour
@@ -11,13 +8,15 @@ public class TetrisGrid : MonoBehaviour
 
     public Vector3Int Radius => _radius;
 
-    private Transform[,,] _grid; // Трёхмерный массив для хранения блоков
-
-    private Vector3Int BaseRadius = new Vector3Int(3, 3, 3);//const
+    private Transform[,,] _grid;
 
     public bool IsEnableVisualGrid { get; set; } = true;
 
+    private Vector3Int BaseRadius = new Vector3Int(3, 3, 3);
+
     private const int _radiusChange = 1;
+
+    private float _positionChange = (float) _radiusChange / 2;
 
     public Action OnRadiusX;
 
@@ -39,9 +38,9 @@ public class TetrisGrid : MonoBehaviour
             case 0:
                 _radius = new Vector3Int(_radius.x + _radiusChange, _radius.y, _radius.z);
 
-                transform.position = new Vector3(transform.position.x + _radiusChange / 2, transform.position.y, transform.position.x);
+                transform.position = new Vector3(transform.position.x + _positionChange, transform.position.y, transform.position.z);
 
-                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(1);
+                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
 
                 OnRadiusX?.Invoke();
 
@@ -49,7 +48,7 @@ public class TetrisGrid : MonoBehaviour
             case 1:
                 _radius = new Vector3Int(_radius.x, _radius.y + _radiusChange, _radius.z);
 
-                //transform.position = new Vector3(transform.position.x, transform.position.y - 1, transform.position.x);
+                transform.position = new Vector3(transform.position.x, transform.position.y + _positionChange, transform.position.z);
 
                 OnRadiusY?.Invoke();
 
@@ -57,21 +56,21 @@ public class TetrisGrid : MonoBehaviour
             case 2:
                 _radius = new Vector3Int(_radius.x, _radius.y, _radius.z + _radiusChange);
 
-                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.x + _radiusChange / 2);
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + _positionChange);
 
-                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(1);
+                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
 
                 OnRadiusZ?.Invoke();
 
                 break;
         }
 
+        _grid = new Transform[_radius.x, _radius.y, _radius.z];
+
         if (IsEnableVisualGrid == false)
             return;
 
         GlobalEvents.OnEditedGrid?.Invoke();
-
-        _grid = new Transform[_radius.x, _radius.y, _radius.z];
     }
 
     public void DecreaseRadius(int side)
@@ -84,9 +83,9 @@ public class TetrisGrid : MonoBehaviour
 
                 _radius = new Vector3Int(_radius.x - _radiusChange, _radius.y, _radius.z);
 
-                transform.position = new Vector3(transform.position.x - _radiusChange / 2, transform.position.y, transform.position.x);
+                transform.position = new Vector3(transform.position.x - _positionChange, transform.position.y, transform.position.z);
 
-                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(-1);
+                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
 
                 OnRadiusX?.Invoke();
 
@@ -97,7 +96,7 @@ public class TetrisGrid : MonoBehaviour
 
                 _radius = new Vector3Int(_radius.x, _radius.y - _radiusChange, _radius.z);
 
-                //transform.position = new Vector3(transform.position.x, transform.position.y - 1, transform.position.x);
+                transform.position = new Vector3(transform.position.x, transform.position.y - _positionChange, transform.position.z);
 
                 OnRadiusY?.Invoke();
 
@@ -108,21 +107,21 @@ public class TetrisGrid : MonoBehaviour
 
                 _radius = new Vector3Int(_radius.x, _radius.y, _radius.z - _radiusChange);
 
-                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.x - _radiusChange / 2);
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - _positionChange);
 
-                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(-1);
+                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
 
                 OnRadiusZ?.Invoke();
 
                 break;
         }
 
+        _grid = new Transform[_radius.x, _radius.y, _radius.z];
+
         if (IsEnableVisualGrid == false)
             return;
 
         GlobalEvents.OnEditedGrid?.Invoke();
-
-        _grid = new Transform[_radius.x, _radius.y, _radius.z];
     }
 
     // Проверка, находится ли позиция внутри сетки
@@ -158,6 +157,7 @@ public class TetrisGrid : MonoBehaviour
     public void RemoveBlockFromGrid(Transform block)
     {
         Vector3 position = MathfCalculations.RoundVector(block.position);
+
         if (IsInsideGrid(position))
         {
             _grid[(int)position.x, (int)position.y, (int)position.z] = null;
@@ -172,6 +172,7 @@ public class TetrisGrid : MonoBehaviour
             if (IsRowFull(y))
             {
                 ClearRow(y);
+
                 MoveRowsDown(y);
             }
         }
@@ -190,6 +191,7 @@ public class TetrisGrid : MonoBehaviour
                 }
             }
         }
+
         return true;
     }
 
@@ -203,6 +205,7 @@ public class TetrisGrid : MonoBehaviour
                 if (_grid[x, y, z] != null)
                 {
                     Destroy(_grid[x, y, z].gameObject);
+
                     _grid[x, y, z] = null;
                 }
             }
@@ -221,8 +224,11 @@ public class TetrisGrid : MonoBehaviour
                     if (_grid[x, y + 1, z] != null)
                     {
                         Transform block = _grid[x, y + 1, z];
+
                         _grid[x, y + 1, z] = null;
+
                         _grid[x, y, z] = block;
+
                         block.position += Vector3.down;
                     }
                 }
