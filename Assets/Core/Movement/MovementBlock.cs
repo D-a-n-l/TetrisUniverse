@@ -14,7 +14,7 @@ public class MovementBlock : MonoBehaviour
 
     private WaitForSeconds _waitFall;
 
-    private Vector3 _directionFall = new Vector3(0, -0.5f, 0);
+    private Vector3 _directionFall = new Vector3(0, -1, 0);
 
     [Inject]
     private void Construct(TetrisGrid grid)
@@ -71,8 +71,6 @@ public class MovementBlock : MonoBehaviour
 
     private void Fall()
     {
-        Move(_directionFall);
-
         if (!Move(_directionFall))
         {
             AddToGrid();
@@ -100,6 +98,7 @@ public class MovementBlock : MonoBehaviour
 
             return false;
         }
+
         return true;
     }
 

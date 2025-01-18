@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class TetrisGrid : MonoBehaviour
 {
@@ -18,11 +19,11 @@ public class TetrisGrid : MonoBehaviour
 
     private float _positionChange = (float) _radiusChange / 2;
 
-    public Action OnRadiusX;
+    public UnityEvent<string> OnRadiusX;
 
-    public Action OnRadiusY;
+    public UnityEvent<string> OnRadiusY;
 
-    public Action OnRadiusZ;
+    public UnityEvent<string> OnRadiusZ;
 
     private void Start()
     {
@@ -42,7 +43,7 @@ public class TetrisGrid : MonoBehaviour
 
                 CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
 
-                OnRadiusX?.Invoke();
+                OnRadiusX?.Invoke(_radius.x.ToString());
 
                 break;
             case 1:
@@ -50,7 +51,7 @@ public class TetrisGrid : MonoBehaviour
 
                 transform.position = new Vector3(transform.position.x, transform.position.y + _positionChange, transform.position.z);
 
-                OnRadiusY?.Invoke();
+                OnRadiusY?.Invoke(_radius.y.ToString());
 
                 break;
             case 2:
@@ -60,7 +61,7 @@ public class TetrisGrid : MonoBehaviour
 
                 CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
 
-                OnRadiusZ?.Invoke();
+                OnRadiusZ?.Invoke(_radius.z.ToString());
 
                 break;
         }
@@ -87,7 +88,7 @@ public class TetrisGrid : MonoBehaviour
 
                 CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
 
-                OnRadiusX?.Invoke();
+                OnRadiusX?.Invoke(_radius.x.ToString());
 
                 break;
             case 1:
@@ -98,7 +99,7 @@ public class TetrisGrid : MonoBehaviour
 
                 transform.position = new Vector3(transform.position.x, transform.position.y - _positionChange, transform.position.z);
 
-                OnRadiusY?.Invoke();
+                OnRadiusY?.Invoke(_radius.y.ToString());
 
                 break;
             case 2:
@@ -111,7 +112,7 @@ public class TetrisGrid : MonoBehaviour
 
                 CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
 
-                OnRadiusZ?.Invoke();
+                OnRadiusZ?.Invoke(_radius.z.ToString());
 
                 break;
         }

@@ -58,10 +58,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 155773408561533594}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 424924c78cd455249baa9f8a0584630e, type: 3}
+  m_Script: {fileID: 11500000, guid: eba502984cef10843a5bc5c99a342c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fallSpeed: 5
+  _timeFall: 2
   _tiles:
   - {fileID: 172672134608182830}
   - {fileID: 6578848900425229895}
