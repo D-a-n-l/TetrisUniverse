@@ -27,7 +27,7 @@ public class Spawner : MonoBehaviour
 
     public void Init()
     {
-        transform.position = new Vector3(_grid.Radius.x / 2, 0, _grid.Radius.z / 2);
+        transform.position = new Vector3(((float)_grid.Radius.x / 2), 0, (float)_grid.Radius.z / 2);
     }
 
     public void Spawn()
