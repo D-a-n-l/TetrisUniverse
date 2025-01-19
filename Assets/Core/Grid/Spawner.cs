@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +19,8 @@ public class Spawner : MonoBehaviour
     private bool _isFirstSpawn = true;
 
     private bool _isCanSpawn = true;
+
+    public Action<Figure> OnSpawned;
 
     [Inject]
     private void Construct(TetrisGrid grid)
@@ -44,7 +47,7 @@ public class Spawner : MonoBehaviour
 
         if (_isFirstSpawn == true)
         {
-            randomFigure = Random.Range(0, _figures.Length);
+            randomFigure = UnityEngine.Random.Range(0, _figures.Length);
 
             _isFirstSpawn = false;
 
@@ -67,10 +70,10 @@ public class Spawner : MonoBehaviour
 
         Instantiate(currentFigure, spawnPosition, currentFigure.transform.rotation);
 
-        randomFigure = Random.Range(0, _figures.Length);
+        randomFigure = UnityEngine.Random.Range(0, _figures.Length);
 
         _presetColors.Random();
 
-        //OnSpawned?.Invoke(_figures[randomFigure]);
+        OnSpawned?.Invoke(_figures[randomFigure]);
     }
 }
