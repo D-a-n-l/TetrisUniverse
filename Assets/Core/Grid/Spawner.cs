@@ -6,11 +6,18 @@ using Zenject;
 public class Spawner : MonoBehaviour
 {
     [SerializeField]
-    private MovementBlock[] _blocks;
+    private PresetColors _presetColors;
+
+    [SerializeField]
+    private Figure[] _figures;
 
     private TetrisGrid _grid;
 
-    public MovementBlock lastBlock;
+    private int randomFigure = 0;
+
+    private bool _isFirstSpawn = true;
+
+    private bool _isCanSpawn = true;
 
     [Inject]
     private void Construct(TetrisGrid grid)
@@ -32,13 +39,38 @@ public class Spawner : MonoBehaviour
 
     public void Spawn()
     {
-        int randomIndex = Random.Range(0, _blocks.Length);
+        if (_isCanSpawn == false)
+            return;
+
+        if (_isFirstSpawn == true)
+        {
+            randomFigure = Random.Range(0, _figures.Length);
+
+            _isFirstSpawn = false;
+
+            _presetColors.Random();
+        }
+
+        Figure currentFigure = _figures[randomFigure];
 
         Vector3 spawnPosition = new Vector3(
             _grid.Radius.x / 2,
             _grid.Radius.y,
             _grid.Radius.z / 2);
 
-        lastBlock = Instantiate(_blocks[randomIndex], spawnPosition, _blocks[randomIndex].transform.rotation);
+        //currentFigure.GetComponent<RotationFigureMany>().IsRandomRotation = false;
+
+        for (int i = 0; i < currentFigure.Tiles.Length; i++)
+        {
+            currentFigure.Tiles[i].sharedMaterial = _presetColors.Set();
+        }
+
+        Instantiate(currentFigure, spawnPosition, currentFigure.transform.rotation);
+
+        randomFigure = Random.Range(0, _figures.Length);
+
+        _presetColors.Random();
+
+        //OnSpawned?.Invoke(_figures[randomFigure]);
     }
 }
