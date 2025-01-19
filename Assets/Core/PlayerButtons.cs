@@ -6,16 +6,16 @@ public class PlayerButtons : MonoBehaviour
     public static PlayerButtons Instance { get; private set; }
 
     [field: SerializeField]
-    public Button Forward { get; private set; }
+    public PressedButton Forward { get; private set; }
 
     [field: SerializeField]
-    public Button Left { get; private set; }
+    public PressedButton Left { get; private set; }
 
     [field: SerializeField]
-    public Button Back { get; private set; }
+    public PressedButton Back { get; private set; }
 
     [field: SerializeField]
-    public Button Right { get; private set; }
+    public PressedButton Right { get; private set; }
 
     [field: SerializeField]
     public PressedButton Fall { get; private set; }
@@ -35,13 +35,13 @@ public class PlayerButtons : MonoBehaviour
 
     public void RemoveAllListeners()
     {
-        Forward.onClick.RemoveAllListeners();
+        Forward.OnPressed.RemoveAllListeners();
 
-        Left.onClick.RemoveAllListeners();
+        Left.OnPressed.RemoveAllListeners();
 
-        Back.onClick.RemoveAllListeners();
+        Back.OnPressed.RemoveAllListeners();
 
-        Right.onClick.RemoveAllListeners();
+        Right.OnPressed.RemoveAllListeners();
 
         Fall.OnDown.RemoveAllListeners();
 

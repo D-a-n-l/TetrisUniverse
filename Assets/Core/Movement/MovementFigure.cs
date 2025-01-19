@@ -32,22 +32,22 @@ public class MovementFigure : MonoBehaviour
 
         PlayerButtons.Instance.RemoveAllListeners();
 
-        PlayerButtons.Instance.Forward.onClick.AddListener(() =>
+        PlayerButtons.Instance.Forward.OnPressed.AddListener(() =>
         {
             Move(new Vector3(CameraMovement.LocalForward.x, 0f, CameraMovement.LocalForward.y));
         });
 
-        PlayerButtons.Instance.Left.onClick.AddListener(() =>
+        PlayerButtons.Instance.Left.OnPressed.AddListener(() =>
         {
             Move(new Vector3(-CameraMovement.LocalRight.x, 0f, -CameraMovement.LocalRight.y));
         });
 
-        PlayerButtons.Instance.Back.onClick.AddListener(() =>
+        PlayerButtons.Instance.Back.OnPressed.AddListener(() =>
         {
             Move(new Vector3(-CameraMovement.LocalForward.x, 0f, -CameraMovement.LocalForward.y));
         });
 
-        PlayerButtons.Instance.Right.onClick.AddListener(() =>
+        PlayerButtons.Instance.Right.OnPressed.AddListener(() =>
         {
             Move(new Vector3(CameraMovement.LocalRight.x, 0f, CameraMovement.LocalRight.y));
         });

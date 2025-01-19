@@ -85,7 +85,9 @@ public class CameraMovement : MonoBehaviour
 
         _camera.transform.position = _target.position + _direction;
 
-        _changeDistance.minValue = distanceBetweenCameraAndTarget;
+        _changeDistance.minValue = distanceBetweenCameraAndTarget / 2;
+
+        _changeDistance.maxValue = distanceBetweenCameraAndTarget;
 
         _changeDistance.onValueChanged.AddListener(SetDistanceBetweenCameraAndTarget);
     }

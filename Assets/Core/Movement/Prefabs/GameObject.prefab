@@ -65,7 +65,6 @@ MonoBehaviour:
   - {fileID: 7948748630839584104}
   - {fileID: 6546870073096969854}
   - {fileID: 5319796098067857534}
-  <MovementFigure>k__BackingField: {fileID: 2379685347464428682}
 --- !u!114 &2379685347464428682
 MonoBehaviour:
   m_ObjectHideFlags: 0
