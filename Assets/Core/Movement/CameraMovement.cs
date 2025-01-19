@@ -75,7 +75,7 @@ public class CameraMovement : MonoBehaviour
         Instance = this;
     }
 
-    public void Init()
+    public void Start()
     {
         float distanceBetweenCameraAndTarget = Vector3.Distance(_camera.transform.position, _target.position);
 
