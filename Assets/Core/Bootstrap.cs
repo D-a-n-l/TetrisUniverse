@@ -17,5 +17,24 @@ public class Bootstrap : MonoBehaviour
         _spawner = spawner;
     }
 
+    //private void Start()
+    //{
+    //    Score score = FindAnyObjectByType<Score>();
+    //    score.Init();
+    //}
 
+    public void Spawn()
+    {
+        _spawner.Spawn();
+    }
+
+    public void IncreaseRadius(int side)
+    {
+        _grid.IncreaseRadius(side);
+    }
+
+    public void DecreaseRadius(int side)
+    {
+        _grid.DecreaseRadius(side);
+    }
 }
