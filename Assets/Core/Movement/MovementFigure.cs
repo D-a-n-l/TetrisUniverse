@@ -75,7 +75,7 @@ public class MovementFigure : MonoBehaviour
         {
             AddToGrid();
 
-            GlobalEvents.OnMovementFinished?.Invoke();
+
         }
     }
 
@@ -141,6 +141,8 @@ public class MovementFigure : MonoBehaviour
             }
 
         }
+
+        GlobalEvents.OnMovementFinished?.Invoke(_block.Tiles.Length);
 
         Destroy(gameObject); // Удаляем только объект фигуры, блоки остаются в сетке
     }

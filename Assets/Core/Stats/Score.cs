@@ -6,7 +6,7 @@ public class Score : Stat
     {
         Increase(0);
 
-        //GlobalEvents.OnMovementFinishedCheck += Increase;
+        GlobalEvents.OnMovementFinished += Increase;
 
         GlobalEvents.OnDeletedRow += Increase;
     }
