@@ -41,7 +41,7 @@ public class TetrisGrid : MonoBehaviour
 
                 transform.position = new Vector3(transform.position.x + _positionChange, transform.position.y, transform.position.z);
 
-                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
+                CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
 
                 OnRadiusX?.Invoke(_radius.x.ToString());
 
@@ -59,7 +59,7 @@ public class TetrisGrid : MonoBehaviour
 
                 transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + _positionChange);
 
-                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
+                CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
 
                 OnRadiusZ?.Invoke(_radius.z.ToString());
 
@@ -86,7 +86,7 @@ public class TetrisGrid : MonoBehaviour
 
                 transform.position = new Vector3(transform.position.x - _positionChange, transform.position.y, transform.position.z);
 
-                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
+                CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
 
                 OnRadiusX?.Invoke(_radius.x.ToString());
 
@@ -110,7 +110,7 @@ public class TetrisGrid : MonoBehaviour
 
                 transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - _positionChange);
 
-                CameraMovement.instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
+                CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
 
                 OnRadiusZ?.Invoke(_radius.z.ToString());
 
