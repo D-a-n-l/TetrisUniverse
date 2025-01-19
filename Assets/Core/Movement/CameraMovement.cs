@@ -276,7 +276,7 @@ public class CameraMovement : MonoBehaviour
     {
         if (Application.isEditor || Application.platform == RuntimePlatform.WindowsPlayer)
         {
-            Vector3 tempV = new Vector3(_rotX, _rotY, 0);
+            Vector3 tempV = new Vector3(-_rotX, _rotY, 0);
             _targetRot = Quaternion.Euler(tempV); //We are setting the rotation around X, Y, Z axis respectively
         }
         else
