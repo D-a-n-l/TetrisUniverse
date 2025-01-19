@@ -1,20 +1,17 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Zenject;
 
-public class Spawner : MonoBehaviour
+public class Spawner : IDisposable
 {
-    [SerializeField]
+    private Transform _root;
+
     private PresetColors _presetColors;
 
-    [SerializeField]
     private Figure[] _figures;
 
     private TetrisGrid _grid;
 
-    private int randomFigure = 0;
+    private int _randomFigure = 0;
 
     private bool _isFirstSpawn = true;
 
@@ -22,22 +19,24 @@ public class Spawner : MonoBehaviour
 
     public Action<Figure> OnSpawned;
 
-    [Inject]
-    private void Construct(TetrisGrid grid)
+    public Spawner(Transform root, PresetColors presetColors, Figure[] figures, TetrisGrid grid)
     {
         _grid = grid;
+
+        _root = root;
+
+        _root.position = new Vector3(((float)_grid.Radius.x / 2) - .5f, -.5f, ((float)_grid.Radius.z / 2) - .5f);
+
+        _presetColors = presetColors;
+
+        _figures = figures;
+
+        GlobalEvents.OnMovementFinished += (int value) => Spawn();
     }
 
-    private void Start()
+    public void Dispose()
     {
-        GlobalEvents.OnMovementFinished += Spawn;
-
-        Init();
-    }
-
-    public void Init()
-    {
-        transform.position = new Vector3(((float)_grid.Radius.x / 2) - .5f, -.5f, ((float)_grid.Radius.z / 2) - .5f);
+        GlobalEvents.OnMovementFinished -= (int value) => Spawn();
     }
 
     public void Spawn()
@@ -47,38 +46,36 @@ public class Spawner : MonoBehaviour
 
         if (_isFirstSpawn == true)
         {
-            randomFigure = UnityEngine.Random.Range(0, _figures.Length);
+            _randomFigure = UnityEngine.Random.Range(0, _figures.Length);
 
             _isFirstSpawn = false;
 
             _presetColors.Random();
         }
 
-        Figure currentFigure = _figures[randomFigure];
+        Figure currentFigure = _figures[_randomFigure];
 
         Vector3 spawnPosition = new Vector3(
             _grid.Radius.x / 2,
             _grid.Radius.y,
             _grid.Radius.z / 2);
 
-        //currentFigure.GetComponent<RotationFigureMany>().IsRandomRotation = false;
-
         for (int i = 0; i < currentFigure.Tiles.Length; i++)
         {
             currentFigure.Tiles[i].sharedMaterial = _presetColors.Set();
         }
 
-        Instantiate(currentFigure, spawnPosition, currentFigure.transform.rotation);
+        UnityEngine.Object.Instantiate(currentFigure, spawnPosition, currentFigure.transform.rotation, _root);
 
-        randomFigure = UnityEngine.Random.Range(0, _figures.Length);
+        _randomFigure = UnityEngine.Random.Range(0, _figures.Length);
 
         _presetColors.Random();
 
-        for (int i = 0; i < _figures[randomFigure].Tiles.Length; i++)
+        for (int i = 0; i < _figures[_randomFigure].Tiles.Length; i++)
         {
-            _figures[randomFigure].Tiles[i].sharedMaterial = _presetColors.Set();
+            _figures[_randomFigure].Tiles[i].sharedMaterial = _presetColors.Set();
         }
 
-        OnSpawned?.Invoke(_figures[randomFigure]);
+        OnSpawned?.Invoke(_figures[_randomFigure]);
     }
 }

@@ -1,17 +1,13 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 
-public class TetrisGrid : MonoBehaviour
+public class TetrisGrid : IDisposable
 {
-    [SerializeField]
-    private Vector3Int _radius;
-
-    public Vector3Int Radius => _radius;
-
     private Transform[,,] _grid;
 
-    public bool IsEnableVisualGrid { get; set; } = true;
+    private Transform _rootSpawn;
+
+    public Vector3Int Radius { get; private set; } = new Vector3Int(12, 12, 12);
 
     private Vector3Int BaseRadius = new Vector3Int(3, 3, 3);
 
@@ -19,17 +15,26 @@ public class TetrisGrid : MonoBehaviour
 
     private float _positionChange = (float) _radiusChange / 2;
 
-    public UnityEvent<string> OnRadiusX;
+    public bool IsEnableVisualGrid { get; set; } = true;
 
-    public UnityEvent<string> OnRadiusY;
+    public Action<string> OnRadiusX;
 
-    public UnityEvent<string> OnRadiusZ;
+    public Action<string> OnRadiusY;
 
-    private void Start()
+    public Action<string> OnRadiusZ;
+
+    public TetrisGrid(Transform rootSpawn)
     {
-        _grid = new Transform[_radius.x, _radius.y, _radius.z];
+        _rootSpawn = rootSpawn;
 
-        GlobalEvents.OnMovementFinished += ClearFullRows;
+        _grid = new Transform[Radius.x, Radius.y, Radius.z];
+
+        GlobalEvents.OnMovementFinished += (int value) => ClearFullRows();
+    }
+
+    public void Dispose()
+    {
+        GlobalEvents.OnMovementFinished -= (int value) => ClearFullRows();
     }
 
     public void IncreaseRadius(int side)
@@ -37,36 +42,36 @@ public class TetrisGrid : MonoBehaviour
         switch (side)
         {
             case 0:
-                _radius = new Vector3Int(_radius.x + _radiusChange, _radius.y, _radius.z);
+                Radius = new Vector3Int(Radius.x + _radiusChange, Radius.y, Radius.z);
 
-                transform.position = new Vector3(transform.position.x + _positionChange, transform.position.y, transform.position.z);
+                _rootSpawn.position = new Vector3(_rootSpawn.position.x + _positionChange, _rootSpawn.position.y, _rootSpawn.position.z);
 
                 CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
 
-                OnRadiusX?.Invoke(_radius.x.ToString());
+                OnRadiusX?.Invoke(Radius.x.ToString());
 
                 break;
             case 1:
-                _radius = new Vector3Int(_radius.x, _radius.y + _radiusChange, _radius.z);
+                Radius = new Vector3Int(Radius.x, Radius.y + _radiusChange, Radius.z);
 
-                transform.position = new Vector3(transform.position.x, transform.position.y + _positionChange, transform.position.z);
+                _rootSpawn.position = new Vector3(_rootSpawn.position.x, _rootSpawn.position.y + _positionChange, _rootSpawn.position.z);
 
-                OnRadiusY?.Invoke(_radius.y.ToString());
+                OnRadiusY?.Invoke(Radius.y.ToString());
 
                 break;
             case 2:
-                _radius = new Vector3Int(_radius.x, _radius.y, _radius.z + _radiusChange);
+                Radius = new Vector3Int(Radius.x, Radius.y, Radius.z + _radiusChange);
 
-                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + _positionChange);
+                _rootSpawn.position = new Vector3(_rootSpawn.position.x, _rootSpawn.position.y, _rootSpawn.position.z + _positionChange);
 
                 CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(_radiusChange);
 
-                OnRadiusZ?.Invoke(_radius.z.ToString());
+                OnRadiusZ?.Invoke(Radius.z.ToString());
 
                 break;
         }
 
-        _grid = new Transform[_radius.x, _radius.y, _radius.z];
+        _grid = new Transform[Radius.x, Radius.y, Radius.z];
 
         if (IsEnableVisualGrid == false)
             return;
@@ -79,45 +84,45 @@ public class TetrisGrid : MonoBehaviour
         switch (side)
         {
             case 0:
-                if (_radius.x - _radiusChange < BaseRadius.x)
+                if (Radius.x - _radiusChange < BaseRadius.x)
                     return;
 
-                _radius = new Vector3Int(_radius.x - _radiusChange, _radius.y, _radius.z);
+                Radius = new Vector3Int(Radius.x - _radiusChange, Radius.y, Radius.z);
 
-                transform.position = new Vector3(transform.position.x - _positionChange, transform.position.y, transform.position.z);
+                _rootSpawn.position = new Vector3(_rootSpawn.position.x - _positionChange, _rootSpawn.position.y, _rootSpawn.position.z);
 
                 CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
 
-                OnRadiusX?.Invoke(_radius.x.ToString());
+                OnRadiusX?.Invoke(Radius.x.ToString());
 
                 break;
             case 1:
-                if (_radius.y - _radiusChange < BaseRadius.y)
+                if (Radius.y - _radiusChange < BaseRadius.y)
                     return;
 
-                _radius = new Vector3Int(_radius.x, _radius.y - _radiusChange, _radius.z);
+                Radius = new Vector3Int(Radius.x, Radius.y - _radiusChange, Radius.z);
 
-                transform.position = new Vector3(transform.position.x, transform.position.y - _positionChange, transform.position.z);
+                _rootSpawn.position = new Vector3(_rootSpawn.position.x, _rootSpawn.position.y - _positionChange, _rootSpawn.position.z);
 
-                OnRadiusY?.Invoke(_radius.y.ToString());
+                OnRadiusY?.Invoke(Radius.y.ToString());
 
                 break;
             case 2:
-                if (_radius.z - _radiusChange < BaseRadius.z)
+                if (Radius.z - _radiusChange < BaseRadius.z)
                     return;
 
-                _radius = new Vector3Int(_radius.x, _radius.y, _radius.z - _radiusChange);
+                Radius = new Vector3Int(Radius.x, Radius.y, Radius.z - _radiusChange);
 
-                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - _positionChange);
+                _rootSpawn.position = new Vector3(_rootSpawn.position.x, _rootSpawn .position.y, _rootSpawn.position.z - _positionChange);
 
                 CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(-_radiusChange);
 
-                OnRadiusZ?.Invoke(_radius.z.ToString());
+                OnRadiusZ?.Invoke(Radius.z.ToString());
 
                 break;
         }
 
-        _grid = new Transform[_radius.x, _radius.y, _radius.z];
+        _grid = new Transform[Radius.x, Radius.y, Radius.z];
 
         if (IsEnableVisualGrid == false)
             return;
@@ -128,9 +133,9 @@ public class TetrisGrid : MonoBehaviour
     // Проверка, находится ли позиция внутри сетки
     public bool IsInsideGrid(Vector3 position)
     {
-        return position.x >= 0 && position.x < _radius.x &&
-               position.y >= 0 && position.y <= _radius.y &&
-               position.z >= 0 && position.z < _radius.z;
+        return position.x >= 0 && position.x < Radius.x &&
+               position.y >= 0 && position.y <= Radius.y &&
+               position.z >= 0 && position.z < Radius.z;
     }
 
     // Проверка, занята ли ячейка
@@ -138,7 +143,7 @@ public class TetrisGrid : MonoBehaviour
     {
         if (!IsInsideGrid(position)) return true; // За пределами сетки всегда занято
 
-        if ((int)position.y == _radius.y) return false; //когда фигура выше раудиса
+        if ((int)position.y == Radius.y) return false; //когда фигура выше раудиса
 
         return _grid[(int)position.x, (int)position.y, (int)position.z] != null;
     }
@@ -168,7 +173,7 @@ public class TetrisGrid : MonoBehaviour
     // Очистка полностью заполненной строки (по высоте Y)
     public void ClearFullRows()
     {
-        for (int y = 0; y < _radius.y; y++)
+        for (int y = 0; y < Radius.y; y++)
         {
             if (IsRowFull(y))
             {
@@ -182,9 +187,9 @@ public class TetrisGrid : MonoBehaviour
     // Проверка, заполнена ли строка
     private bool IsRowFull(int y)
     {
-        for (int x = 0; x < _radius.x; x++)
+        for (int x = 0; x < Radius.x; x++)
         {
-            for (int z = 0; z < _radius.z; z++)
+            for (int z = 0; z < Radius.z; z++)
             {
                 if (_grid[x, y, z] == null)
                 {
@@ -199,28 +204,30 @@ public class TetrisGrid : MonoBehaviour
     // Очистка строки
     private void ClearRow(int y)
     {
-        for (int x = 0; x < _radius.x; x++)
+        for (int x = 0; x < Radius.x; x++)
         {
-            for (int z = 0; z < _radius.z; z++)
+            for (int z = 0; z < Radius.z; z++)
             {
                 if (_grid[x, y, z] != null)
                 {
-                    Destroy(_grid[x, y, z].gameObject);
+                    UnityEngine.Object.Destroy(_grid[x, y, z].gameObject);
 
                     _grid[x, y, z] = null;
                 }
             }
         }
+
+        GlobalEvents.OnDeletedRow?.Invoke(Radius.x * Radius.z);
     }
 
     // Сдвиг строк вниз
     private void MoveRowsDown(int clearedRow)
     {
-        for (int y = clearedRow; y < _radius.y - 1; y++)
+        for (int y = clearedRow; y < Radius.y - 1; y++)
         {
-            for (int x = 0; x < _radius.x; x++)
+            for (int x = 0; x < Radius.x; x++)
             {
-                for (int z = 0; z < _radius.z; z++)
+                for (int z = 0; z < Radius.z; z++)
                 {
                     if (_grid[x, y + 1, z] != null)
                     {
