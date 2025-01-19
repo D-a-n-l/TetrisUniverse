@@ -2,13 +2,13 @@ using System.Collections;
 using UnityEngine;
 using Zenject;
 
-public class MovementBlock : MonoBehaviour
+public class MovementFigure : MonoBehaviour
 {
     [SerializeField]
     private float _timeFall = 1f;
 
     [SerializeField]
-    private Transform[] _tiles;
+    private Figure _block;
 
     private TetrisGrid _grid;
 
@@ -129,15 +129,15 @@ public class MovementBlock : MonoBehaviour
 
     private void AddToGrid()
     {
-        foreach (Transform child in _tiles)
+        for (int i = 0; i < _block.Tiles.Length; i++)
         {
-            child.SetParent(null); // Отвязываем блок от родителя
+            _block.Tiles[i].transform.SetParent(null); // Отвязываем блок от родителя
 
-            Vector3 position = MathfCalculations.RoundVector(child.position);
+            Vector3 position = MathfCalculations.RoundVector(_block.Tiles[i].transform.position);
 
             if (_grid.IsInsideGrid(position))
             {
-                _grid.AddBlockToGrid(child); // Добавляем дочерний блок в сетку
+                _grid.AddBlockToGrid(_block.Tiles[i].transform); // Добавляем дочерний блок в сетку
             }
 
         }
