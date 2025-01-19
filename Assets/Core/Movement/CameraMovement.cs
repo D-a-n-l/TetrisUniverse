@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CameraMovement : MonoBehaviour
 {
-    public static CameraMovement instance;
+    public static CameraMovement Instance;
 
     [SerializeField]
     private Camera _camera;
@@ -13,38 +11,24 @@ public class CameraMovement : MonoBehaviour
     [SerializeField]
     private Transform _target;
 
+    [Space(10)]
     [SerializeField]
-    private float _minXAngle = -85; //min angle around x axis
+    private float _minXAngle = -85;
 
     [SerializeField]
-    private float _maxXAngle = 85; // max angle around x axis
+    private float _maxXAngle = 85;
 
+    [Space(10)]
     [SerializeField]
     private Slider _changeDistance;
 
-    public static Vector3Int LocalForward = Vector3Int.up;
+    private Vector3 _baseDirection;
 
-    public static Vector3Int LocalRight = Vector3Int.right;
+    private Vector3 _direction;
 
-    private float _targetHorizontalRotation = 0;
+    private Touch _touch;
 
-    private float _mouseRotateSpeed = 5f;
-
-    //change in settings
-    private float _touchRotateSpeed = 0.1f;
-    //change in settings
-
-    private float _slerpSmoothValue = 0.3f;
-
-    private float _scrollSmoothTime = 0.12f;
-    private float _editorFOVSensitivity = 5f;
-    private float _touchFOVSensitivity = 5f;
-
-    //Can we rotate camera, which means we are not blocking the view
-    [SerializeField]
-    private bool _isCanRotate = true;
-
-    private Vector2 _swipeDirection; //swipe delta vector2
+    private Vector2 _swipeDirection;
 
     private Vector2 _touch1OldPos;
     private Vector2 _touch2OldPos;
@@ -52,61 +36,67 @@ public class CameraMovement : MonoBehaviour
     private Vector2 _touch1CurrentPos;
     private Vector2 _touch2CurrentPos;
 
-    private Quaternion _currentRot; // store the quaternion after the slerp operation
-    private Quaternion _targetRot;
+    private Quaternion _currentRotation; // store the quaternion after the slerp operation
+    private Quaternion _targetRotation;
 
-    private Touch _touch;
+    private float _rotateX; // around x
+    private float _rotateY; // around y
+    //Mouse Scroll
+    private float _cameraFOV;
 
-    //Mouse rotation related
-    private float _rotX; // around x
-    private float _rotY; // around y
-                        //Mouse Scroll
-    private float _cameraFieldOfView;
-    private float _cameraFOVDamp; //Damped value
+    private float _cameraFOVDamp;
+
     private float _fovChangeVelocity = 0;
 
-    private float _minCameraFieldOfView = 6;
-    private float _maxCameraFieldOfView = 30;
+    private float _minCameraFOV = 6;
+    private float _maxCameraFOV = 30;
 
-    private Vector3 _baseDirection;
+    private float _targetHorizontalRotation = 0;
 
-    private Vector3 _direction;
+    private float _mouseRotateSpeed = 5f;
+
+    private float _touchRotateSpeed = 0.1f;
+
+    private float _slerpSmoothValue = 0.3f;
+
+    private float _scrollSmoothTime = 0.12f;
+
+    private float _editorFOVSensitivity = 5f;
+    private float _touchFOVSensitivity = 5f;
+
+    private bool _isCanRotate = true;
+
+    public static Vector3Int LocalForward = Vector3Int.up;
+
+    public static Vector3Int LocalRight = Vector3Int.right;
 
     private void Awake()
     {
-        instance = this;
-    }
-
-    private void Start()
-    {
-        Init();
+        Instance = this;
     }
 
     public void Init()
     {
         float distanceBetweenCameraAndTarget = Vector3.Distance(_camera.transform.position, _target.position);
 
-        _direction = new Vector3(0, 0, distanceBetweenCameraAndTarget);//assign value to the distance between the maincamera and the target
+        _direction = new Vector3(0, 0, distanceBetweenCameraAndTarget);
 
         _baseDirection = _direction;
 
-        _camera.transform.position = _target.position + _direction; //Initialize camera position
+        _camera.transform.position = _target.position + _direction;
 
-        //_cameraFOVDamp = _camera.fieldOfView;
-        //_cameraFieldOfView = _camera.fieldOfView;
+        _changeDistance.minValue = distanceBetweenCameraAndTarget;
+
+        _changeDistance.onValueChanged.AddListener(SetDistanceBetweenCameraAndTarget);
     }
 
-    public void ResetDirection()
-    {
-        _direction = _baseDirection;
-    }
+    public void SetTouchRotateSpeed(float speed) => _touchRotateSpeed = speed;
 
-    public void SetDistanceBetweenCameraAndTarget(float distance)//for slider
-    {
-        _direction.z = distance;
-    }
+    public void ResetDirection() => _direction = _baseDirection;
 
-    public void IncreaseDistanceBetweenCameraAndTarget(float value)//for script
+    public void SetDistanceBetweenCameraAndTarget(float distance) => _direction.z = distance;
+
+    public void IncreaseDistanceBetweenCameraAndTarget(float value)
     {
         _direction.z += value;
 
@@ -115,75 +105,72 @@ public class CameraMovement : MonoBehaviour
         _changeDistance.maxValue += value;
     }
 
-    public void SetTouchRotateSpeed(float speed)
+    public void SetOrthographic(bool value, float positionY)
     {
-        _touchRotateSpeed = speed;
+        _isCanRotate = !value;
+
+        _camera.orthographic = value;
+
+        Vector3 positionCamera = new Vector3(0f, positionY, Mathf.Abs(_camera.transform.position.z));
+
+        _camera.transform.SetPositionAndRotation(positionCamera, Quaternion.Euler(0, -180, 0));
+
+        InitLocalDirections();
     }
 
     private void Update()
     {
-        if (!_isCanRotate)
-        {
+        if (_isCanRotate == false)
             return;
-        }
-        //We are in editor
-        if (Application.isEditor || Application.platform == RuntimePlatform.WindowsPlayer)
-        {
-            EditorCameraInput();
-        }
-        else //We are in mobile mode
-        {
-            TouchCameraInput();
-        }
 
+        if (Application.isEditor || Application.platform == RuntimePlatform.WindowsPlayer)
+            EditorCameraInput();
+        else
+            TouchCameraInput();
+
+        InitLocalDirections();
+    }
+
+    private void InitLocalDirections()
+    {
         _targetHorizontalRotation = transform.eulerAngles.y;
 
         _targetHorizontalRotation = _targetHorizontalRotation % 360;
 
         Quaternion rotation = Quaternion.Euler(0, 0, -_targetHorizontalRotation);
 
-        LocalForward = RotateRoundToInt(rotation, Vector3Int.up);
-        LocalRight = RotateRoundToInt(rotation, Vector3Int.right);
-    }
-
-    private Vector3Int RotateRoundToInt(Quaternion rotation, Vector3Int vector)
-    {
-        Vector3 newVector = rotation * vector;
-        return new Vector3Int(Mathf.RoundToInt(newVector.x), Mathf.RoundToInt(newVector.y), Mathf.RoundToInt(newVector.z));
+        LocalForward = MathfCalculations.RotateRoundToInt(rotation, Vector3Int.up);
+        LocalRight = MathfCalculations.RotateRoundToInt(rotation, Vector3Int.right);
     }
 
     private void LateUpdate()
     {
-        if (!_isCanRotate)
-        {
+        if (_isCanRotate == false)
             return;
-        }
 
         RotateCamera();
-        //SetCameraFOV();
     }
 
     private void EditorCameraInput()
     {
-        //Camera Rotation
         if (Input.GetMouseButton(0))
         {
-            _rotX += Input.GetAxis("Mouse Y") * _mouseRotateSpeed; // around X
-            _rotY += Input.GetAxis("Mouse X") * _mouseRotateSpeed;
+            _rotateX += Input.GetAxis("Mouse Y") * _mouseRotateSpeed; // around X
+            _rotateY += Input.GetAxis("Mouse X") * _mouseRotateSpeed;
 
-            if (_rotX < _minXAngle)
+            if (_rotateX < _minXAngle)
             {
-                _rotX = _minXAngle;
+                _rotateX = _minXAngle;
             }
-            else if (_rotX > _maxXAngle)
+            else if (_rotateX > _maxXAngle)
             {
-                _rotX = _maxXAngle;
+                _rotateX = _maxXAngle;
             }
         }
         //Camera Field Of View
         if (Input.mouseScrollDelta.magnitude > 0)
         {
-            _cameraFieldOfView += Input.mouseScrollDelta.y * _editorFOVSensitivity * -1;//-1 make FOV change natual
+            _cameraFOV += Input.mouseScrollDelta.y * _editorFOVSensitivity * -1;//-1 make FOV change natual
         }
     }
 
@@ -213,6 +200,7 @@ public class CameraMovement : MonoBehaviour
             {
                 Touch touch1 = Input.GetTouch(0);
                 Touch touch2 = Input.GetTouch(1);
+
                 if (touch1.phase == TouchPhase.Began && touch2.phase == TouchPhase.Began)
                 {
                     _touch1OldPos = touch1.position;
@@ -225,7 +213,7 @@ public class CameraMovement : MonoBehaviour
 
                     float deltaDistance = Vector2.Distance(_touch1CurrentPos, _touch2CurrentPos) - Vector2.Distance(_touch1OldPos, _touch2OldPos);
 
-                    _cameraFieldOfView += deltaDistance * -1 * _touchFOVSensitivity; // Make rotate direction natual
+                    _cameraFOV += deltaDistance * -1 * _touchFOVSensitivity; // Make rotate direction natual
 
                     _touch1OldPos = _touch1CurrentPos;
                     _touch2OldPos = _touch2CurrentPos;
@@ -234,77 +222,26 @@ public class CameraMovement : MonoBehaviour
         }
 
         if (_swipeDirection.y < _minXAngle)
-        {
             _swipeDirection.y = _minXAngle;
-        }
         else if (_swipeDirection.y > _maxXAngle)
-        {
             _swipeDirection.y = _maxXAngle;
-        }
-    }
-
-    public void SetOrthographic(Vector3 pos)
-    {
-        _isCanRotate = false;
-        _camera.orthographic = true;
-
-        Vector3 newsd = new Vector3(0f, pos.y, Mathf.Abs(_camera.transform.position.z));
-
-        _camera.transform.position = newsd;
-
-
-        _camera.transform.rotation = Quaternion.Euler(0, -180, 0);
-
-        _targetHorizontalRotation = transform.eulerAngles.y;
-
-        _targetHorizontalRotation = _targetHorizontalRotation % 360;
-
-        Quaternion rotation = Quaternion.Euler(0, 0, -_targetHorizontalRotation);
-
-        LocalForward = RotateRoundToInt(rotation, Vector3Int.up);
-        LocalRight = RotateRoundToInt(rotation, Vector3Int.right);
-    }
-
-
-    public void UnSetOrthographic()
-    {
-        _isCanRotate = true;
-        _camera.orthographic = false;
     }
 
     private void RotateCamera()
     {
         if (Application.isEditor || Application.platform == RuntimePlatform.WindowsPlayer)
         {
-            Vector3 tempV = new Vector3(-_rotX, _rotY, 0);
-            _targetRot = Quaternion.Euler(tempV); //We are setting the rotation around X, Y, Z axis respectively
+            Vector3 tempV = new Vector3(_rotateX, _rotateY, 0);
+            _targetRotation = Quaternion.Euler(tempV); //We are setting the rotation around X, Y, Z axis respectively
         }
         else
         {
-            _targetRot = Quaternion.Euler(-_swipeDirection.y, _swipeDirection.x, 0);
+            _targetRotation = Quaternion.Euler(-_swipeDirection.y, _swipeDirection.x, 0);
         }
         //Rotate Camera
-        _currentRot = Quaternion.Slerp(_currentRot, _targetRot, Time.smoothDeltaTime * _slerpSmoothValue * 50);  //let cameraRot value gradually reach newQ which corresponds to our touch
-                                                                                                             //Multiplying a quaternion by a Vector3 is essentially to apply the rotation to the Vector3
-                                                                                                             //This case it's like rotate a stick the length of the distance between the camera and the target and then look at the target to rotate the camera.
-        _camera.transform.position = _target.position + _currentRot * _direction;
+        _currentRotation = Quaternion.Slerp(_currentRotation, _targetRotation, Time.smoothDeltaTime * _slerpSmoothValue * 50);
+
+        _camera.transform.position = _target.position + _currentRotation * _direction;
         _camera.transform.LookAt(_target.position);
     }
-
-    //private void SetCameraFOV()
-    //{
-    //    //Set Camera Field Of View
-    //    //Clamp Camera FOV value
-    //    if (cameraFieldOfView <= minCameraFieldOfView)
-    //    {
-    //        cameraFieldOfView = minCameraFieldOfView;
-    //    }
-    //    else if (cameraFieldOfView >= maxCameraFieldOfView)
-    //    {
-    //        cameraFieldOfView = maxCameraFieldOfView;
-    //    }
-
-    //    cameraFOVDamp = Mathf.SmoothDamp(cameraFOVDamp, cameraFieldOfView, ref fovChangeVelocity, scrollSmoothTime);
-    //    _camera.fieldOfView = cameraFOVDamp;
-    //}
 }
