@@ -1,22 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Spinning : MonoBehaviour
 {
-    public float speed;
-    private RectTransform rT;
+    [SerializeField]
+    private float _speed = 20f;
+
     private static float currentRotation = 0;
 
-    private void Awake()
-    {
-        rT = GetComponent<RectTransform>();
-    }
+    public bool IsSpin = true;
 
     private void Update()
     {
-        currentRotation += speed*Time.deltaTime;
+        if (IsSpin == false)
+            return;
+
+        currentRotation += _speed * Time.deltaTime;
+
         currentRotation %= 360;
-        rT.localRotation = Quaternion.Euler(0, currentRotation, 0);
+
+        transform.localRotation = Quaternion.Euler(0, currentRotation, 0);
     }
 }

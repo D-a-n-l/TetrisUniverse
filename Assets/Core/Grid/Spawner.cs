@@ -74,6 +74,11 @@ public class Spawner : MonoBehaviour
 
         _presetColors.Random();
 
+        for (int i = 0; i < _figures[randomFigure].Tiles.Length; i++)
+        {
+            _figures[randomFigure].Tiles[i].sharedMaterial = _presetColors.Set();
+        }
+
         OnSpawned?.Invoke(_figures[randomFigure]);
     }
 }

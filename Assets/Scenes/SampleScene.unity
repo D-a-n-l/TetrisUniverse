@@ -1296,8 +1296,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 526187795}
+  - component: {fileID: 526187797}
+  - component: {fileID: 526187796}
   m_Layer: 5
-  m_Name: GameObject
+  m_Name: Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1322,6 +1324,34 @@ RectTransform:
   m_AnchoredPosition: {x: 339, y: 784}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &526187796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 526187794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ab3ff8898cd4c2489dce8859a5aa153, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _root: {fileID: 526187795}
+  _isSpin: 1
+--- !u!114 &526187797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 526187794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e49cc3cc1f369f4ba3ebbb0b25d77ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _speed: 20
+  IsSpin: 1
 --- !u!1 &601342813
 GameObject:
   m_ObjectHideFlags: 0
@@ -5106,7 +5136,6 @@ GameObject:
   - component: {fileID: 1952490540}
   - component: {fileID: 1952490539}
   - component: {fileID: 1952490538}
-  - component: {fileID: 1952490537}
   m_Layer: 5
   m_Name: NextFigureView
   m_TagString: Untagged
@@ -5114,20 +5143,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1952490537
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1952490536}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ab3ff8898cd4c2489dce8859a5aa153, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _root: {fileID: 526187795}
-  _isSpin: 1
 --- !u!114 &1952490538
 MonoBehaviour:
   m_ObjectHideFlags: 0
