@@ -13,6 +13,9 @@ public class CameraMovement : MonoBehaviour
 
     [Space(10)]
     [SerializeField]
+    private float _orthographicSize = 7;
+
+    [SerializeField]
     private float _minXAngle = -85;
 
     [SerializeField]
@@ -107,13 +110,18 @@ public class CameraMovement : MonoBehaviour
         _changeDistance.maxValue += value;
     }
 
-    public void SetOrthographic(bool value, float positionY)
+    public void SetOrthographic(bool value, Vector3 position)
     {
         _isCanRotate = !value;
 
         _camera.orthographic = value;
 
-        Vector3 positionCamera = new Vector3(0f, positionY, Mathf.Abs(_camera.transform.position.z));
+        //_camera.orthographicSize = _orthographicSize;
+
+        if (value == false)
+            return;
+
+        Vector3 positionCamera = position;
 
         _camera.transform.SetPositionAndRotation(positionCamera, Quaternion.Euler(0, -180, 0));
 

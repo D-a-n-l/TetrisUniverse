@@ -79,6 +79,54 @@ public class TetrisGrid : IDisposable
         GlobalEvents.OnEditedGrid?.Invoke();
     }
 
+    public void SetRadius(int side, uint value)
+    {
+        uint positionChange = value / 2;
+
+        switch (side)
+        {
+            case 0:
+                Radius = new Vector3Int((int) value, Radius.y, Radius.z);
+
+                _rootSpawn.position = new Vector3(positionChange, _rootSpawn.position.y, _rootSpawn.position.z);
+
+                CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(-Radius.x);
+
+                CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(value);
+
+                OnRadiusX?.Invoke(Radius.x.ToString());
+
+                break;
+            case 1:
+                Radius = new Vector3Int(Radius.x, (int) value, Radius.z);
+
+                _rootSpawn.position = new Vector3(_rootSpawn.position.x, positionChange, _rootSpawn.position.z);
+
+                OnRadiusY?.Invoke(Radius.y.ToString());
+
+                break;
+            case 2:
+                Radius = new Vector3Int(Radius.x, Radius.y, (int)value);
+
+                _rootSpawn.position = new Vector3(_rootSpawn.position.x, _rootSpawn.position.y, positionChange);
+
+                CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(-Radius.z);
+
+                CameraMovement.Instance.IncreaseDistanceBetweenCameraAndTarget(value);
+
+                OnRadiusZ?.Invoke(Radius.z.ToString());
+
+                break;
+        }
+
+        _grid = new Transform[Radius.x, Radius.y, Radius.z];
+
+        if (IsEnableVisualGrid == false)
+            return;
+
+        GlobalEvents.OnEditedGrid?.Invoke();
+    }
+
     public void DecreaseRadius(int side)
     {
         switch (side)
