@@ -36,6 +36,12 @@ public class LogicCoreInstaller : MonoInstaller
 
         grid.OnRadiusZ += OnRadiusZ.Invoke;
 
+        grid.OnRadiusX?.Invoke(grid.Radius.x.ToString());
+
+        grid.OnRadiusY?.Invoke(grid.Radius.y.ToString());
+
+        grid.OnRadiusZ?.Invoke(grid.Radius.z.ToString());
+
         Container.BindInterfacesAndSelfTo<TetrisGrid>().FromInstance(grid).AsSingle();
 
         return grid;
