@@ -1,3 +1,4 @@
+using GG.Infrastructure.Utils.Swipe;
 using System.Collections;
 using UnityEngine;
 using Zenject;
@@ -22,8 +23,32 @@ public class MovementFigure : MonoBehaviour
         _grid = grid;
     }
 
+    private void OnSwipe(string swipe)
+    {
+        switch (swipe)
+        {
+            case "Left":
+                Move(Vector2.right);
+                break;
+            case "Right":
+                Move(Vector2.left);
+                break;
+            case "Down":
+                Move(Vector2.down);
+                break;
+            case "DownLeft":
+                Move(Vector2.down);
+                break;
+            case "DownRight":
+                Move(Vector2.down);
+                break;
+        }
+    }
+
     private void Start()
     {
+        SwipeListener.Instance.OnSwipe.AddListener(OnSwipe);
+
         _waitFall = new WaitForSeconds(_timeFall);
 
         StopAllCoroutines();
