@@ -1114,7 +1114,7 @@ MonoBehaviour:
           m_CallState: 2
         - m_Target: {fileID: 1291829844}
           m_TargetAssemblyTypeName: Bootstrap, Assembly-CSharp
-          m_MethodName: Spawn
+          m_MethodName: SpawnCreative
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -1154,7 +1154,7 @@ MonoBehaviour:
           m_CallState: 2
         - m_Target: {fileID: 1291829844}
           m_TargetAssemblyTypeName: Bootstrap, Assembly-CSharp
-          m_MethodName: Spawn
+          m_MethodName: SpawnClassical
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -4873,9 +4873,9 @@ MonoBehaviour:
         m_CallState: 2
   _presetColors: {fileID: 921187152}
   _figures:
-  - {fileID: 1992299216403951523, guid: cc0dc409966166841ab9e6dba5dcb69a, type: 3}
-  - {fileID: 6781150077033739351, guid: bddd966fbaa06c343b89c259a98767f0, type: 3}
-  - {fileID: 5436396389816247509, guid: 6894bed5ba4f9314a9a9bf18c0385360, type: 3}
+  - {fileID: 2379685347464428682, guid: cc0dc409966166841ab9e6dba5dcb69a, type: 3}
+  - {fileID: 2379685347464428682, guid: bddd966fbaa06c343b89c259a98767f0, type: 3}
+  - {fileID: 2379685347464428682, guid: 6894bed5ba4f9314a9a9bf18c0385360, type: 3}
 --- !u!114 &1375121581
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Spawner : IDisposable
@@ -7,7 +8,7 @@ public class Spawner : IDisposable
 
     private PresetColors _presetColors;
 
-    private Figure[] _figures;
+    private MovementFigure[] _figures;
 
     private TetrisGrid _grid;
 
@@ -17,9 +18,11 @@ public class Spawner : IDisposable
 
     private bool _isCanSpawn = true;
 
-    public Action<Figure> OnSpawned;
+    public bool IsClassical = false;
 
-    public Spawner(Transform root, PresetColors presetColors, Figure[] figures, TetrisGrid grid)
+    public Action<MovementFigure> OnSpawned;
+
+    public Spawner(Transform root, PresetColors presetColors, MovementFigure[] figures, TetrisGrid grid)
     {
         _grid = grid;
 
@@ -53,7 +56,7 @@ public class Spawner : IDisposable
             _presetColors.Random();
         }
 
-        Figure currentFigure = _figures[_randomFigure];
+        MovementFigure currentFigure = _figures[_randomFigure];
 
         Vector3 spawnPosition = new Vector3(
             _grid.Radius.x / 2,
@@ -65,7 +68,7 @@ public class Spawner : IDisposable
             currentFigure.Tiles[i].sharedMaterial = _presetColors.Set();
         }
 
-        UnityEngine.Object.Instantiate(currentFigure, spawnPosition, currentFigure.transform.rotation, _root);
+        UnityEngine.Object.Instantiate(currentFigure, spawnPosition, currentFigure.transform.rotation, _root).IsSwipe(IsClassical);
 
         _randomFigure = UnityEngine.Random.Range(0, _figures.Length);
 

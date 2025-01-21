@@ -80,7 +80,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _timeFall: 1
-  _block: {fileID: 6781150077033739351}
+  _tiles:
+  - {fileID: 6546870073096969854}
+  - {fileID: 1481404455673163720}
+  - {fileID: 7948748630839584104}
+  - {fileID: 5319796098067857534}
 --- !u!1 &623598900624946089
 GameObject:
   m_ObjectHideFlags: 0

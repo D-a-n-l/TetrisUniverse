@@ -19,7 +19,7 @@ public class LogicCoreInstaller : MonoInstaller
     private PresetColors _presetColors;
 
     [SerializeField]
-    private Figure[] _figures;
+    private MovementFigure[] _figures;
 
     public override void InstallBindings()
     {

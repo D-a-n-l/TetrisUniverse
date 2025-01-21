@@ -51,19 +51,19 @@ public class NextFigureView : MonoBehaviour
         Destroy(_previousNextShape);
     }
 
-    public void DisplayNext(Figure newFigure)
+    public void DisplayNext(MovementFigure newFigure)
     {
         if (_previousNextShape != null)
             DestroyPrevious();
 
-        Figure figure = Instantiate(newFigure, _root);
+        MovementFigure figure = Instantiate(newFigure, _root);
 
         for (int i = 0; i < figure.Tiles.Length; i++)
         {
             figure.Tiles[i].gameObject.layer = _root.gameObject.layer;
         }
 
-        figure.gameObject.GetComponent<MovementFigure>().enabled = false;
+        figure.enabled = false;
 
         if (_isSpin == false)
         {

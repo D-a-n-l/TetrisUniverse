@@ -19,8 +19,17 @@ public class Bootstrap : MonoBehaviour
         _spawner = spawner;
     }
 
-    public void Spawn()
+    public void SpawnClassical()
     {
+        _spawner.IsClassical = true;
+
+        _spawner.Spawn();
+    }
+
+    public void SpawnCreative()
+    {
+        _spawner.IsClassical = false;
+
         _spawner.Spawn();
     }
 

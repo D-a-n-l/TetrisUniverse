@@ -1,5 +1,6 @@
 using GG.Infrastructure.Utils.Swipe;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using Zenject;
 
@@ -9,7 +10,9 @@ public class MovementFigure : MonoBehaviour
     private float _timeFall = 1f;
 
     [SerializeField]
-    private Figure _block;
+    private MeshRenderer[] _tiles;
+
+    public MeshRenderer[] Tiles => _tiles;
 
     private TetrisGrid _grid;
 
@@ -17,10 +20,17 @@ public class MovementFigure : MonoBehaviour
 
     private Vector3 _directionFall = new Vector3(0, -1, 0);
 
+    private bool _isSwipe = false;
+
     [Inject]
     private void Construct(TetrisGrid grid)
     {
         _grid = grid;
+    }
+
+    public void IsSwipe(bool isSwipe)
+    {
+        _isSwipe = isSwipe;
     }
 
     private void OnSwipe(string swipe)
@@ -47,13 +57,18 @@ public class MovementFigure : MonoBehaviour
 
     private void Start()
     {
-        SwipeListener.Instance.OnSwipe.AddListener(OnSwipe);
-
         _waitFall = new WaitForSeconds(_timeFall);
 
         StopAllCoroutines();
 
         StartCoroutine(FallByTime());
+
+        if (_isSwipe == true)
+        {
+            SwipeListener.Instance.OnSwipe.AddListener(OnSwipe);
+
+            return;
+        }
 
         PlayerButtons.Instance.RemoveAllListeners();
 
@@ -154,20 +169,20 @@ public class MovementFigure : MonoBehaviour
 
     private void AddToGrid()
     {
-        for (int i = 0; i < _block.Tiles.Length; i++)
+        for (int i = 0; i < _tiles.Length; i++)
         {
-            _block.Tiles[i].transform.SetParent(null); // Отвязываем блок от родителя
+            _tiles[i].transform.SetParent(null); // Отвязываем блок от родителя
 
-            Vector3 position = MathfCalculations.RoundVector(_block.Tiles[i].transform.position);
+            Vector3 position = MathfCalculations.RoundVector(_tiles[i].transform.position);
 
             if (_grid.IsInsideGrid(position))
             {
-                _grid.AddBlockToGrid(_block.Tiles[i].transform); // Добавляем дочерний блок в сетку
+                _grid.AddBlockToGrid(_tiles[i].transform); // Добавляем дочерний блок в сетку
             }
 
         }
 
-        GlobalEvents.OnMovementFinished?.Invoke(_block.Tiles.Length);
+        GlobalEvents.OnMovementFinished?.Invoke(_tiles.Length);
 
         Destroy(gameObject); // Удаляем только объект фигуры, блоки остаются в сетке
     }
