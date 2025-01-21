@@ -20,6 +20,8 @@ public class MovementFigure : MonoBehaviour
 
     private Vector3 _directionFall = new Vector3(0, -1, 0);
 
+    private GameObject[] ghostBlocks; // Массив для хранения "призрачных" блоков
+
     private bool _isSwipe = false;
 
     [Inject]
@@ -33,6 +35,21 @@ public class MovementFigure : MonoBehaviour
         _isSwipe = isSwipe;
     }
 
+    private GameObject previewObject; // Объект для превью
+
+    private void CreatePreviewObject()
+    {
+        previewObject = Instantiate(gameObject, transform.position, transform.rotation);
+        previewObject.GetComponent<MovementFigure>().enabled = false; // Убираем логику движения
+        foreach (Transform child in previewObject.transform)
+        {
+            Renderer renderer = child.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material = CreatePreviewMaterial();
+            }
+        }
+    }
     private void OnSwipe(string swipe)
     {
         switch (swipe)
@@ -58,7 +75,7 @@ public class MovementFigure : MonoBehaviour
     private void Start()
     {
         _waitFall = new WaitForSeconds(_timeFall);
-
+        CreatePreviewObject();
         StopAllCoroutines();
 
         StartCoroutine(FallByTime());
@@ -67,7 +84,17 @@ public class MovementFigure : MonoBehaviour
         {
             SwipeListener.Instance.OnSwipe.AddListener(OnSwipe);
 
-            SwipeListener.Instance.OnTouch.AddListener(() => Rotate(Vector3.forward));
+            SwipeListener.Instance.OnTouch.AddListener(() =>
+            {
+                RotateA(Vector3.forward, transform);
+
+                previewObject.transform.Rotate(Vector3.forward * 90);
+                UpdatePreviewObject();
+                if (!IsValidPosition(previewObject.transform))
+                {
+                    previewObject.transform.Rotate(-Vector3.forward * 90); // Отменить вращение
+                }
+            });
 
             return;
         }
@@ -96,12 +123,15 @@ public class MovementFigure : MonoBehaviour
 
         PlayerButtons.Instance.RotateX.onClick.AddListener(() =>
         {
-            Rotate(Vector3.left);
+            RotateA(Vector3.left, transform);
+            RotateA(Vector3.left, previewObject.transform);
+
         });
 
         PlayerButtons.Instance.RotateZ.onClick.AddListener(() =>
         {
-            Rotate(Vector3.forward);
+            RotateA(Vector3.forward, transform);
+            RotateA(Vector3.forward, previewObject.transform);
         });
 
         PlayerButtons.Instance.Fall.OnPressed.AddListener(Fall);
@@ -120,6 +150,39 @@ public class MovementFigure : MonoBehaviour
 
         }
     }
+    void Update()
+    {
+
+        UpdatePreviewObject();
+    }
+
+
+
+    private Material CreatePreviewMaterial()
+    {
+        Material previewMaterial = new Material(Shader.Find("Standard"));
+        previewMaterial.color = new Color(1f, 1f, 1f, 0.25f); // Полупрозрачный белый
+        return previewMaterial;
+    }
+
+
+    private void UpdatePreviewObject()
+    {
+        if (previewObject == null) return;
+
+        Vector3 startPosition = transform.position;
+        previewObject.transform.position = startPosition;
+
+        // Падение вниз до нижней точки
+        while (IsValidPosition(previewObject.transform))
+        {
+            previewObject.transform.position += Vector3.down;
+        }
+
+        // Откат на одну позицию вверх
+        previewObject.transform.position += Vector3.up;
+    }
+
 
     public IEnumerator FallByTime()
     {
@@ -134,7 +197,7 @@ public class MovementFigure : MonoBehaviour
     {
         transform.position += direction;
 
-        if (!IsValidPosition())
+        if (!IsValidPosition(transform))
         {
             transform.position -= direction; // Вернуть на место
 
@@ -144,19 +207,19 @@ public class MovementFigure : MonoBehaviour
         return true;
     }
 
-    private void Rotate(Vector3 axis)
+    private void RotateA(Vector3 axis, Transform transformObj)
     {
-        transform.Rotate(axis * 90);
+        transformObj.Rotate(axis * 90);
 
-        if (!IsValidPosition())
+        if (!IsValidPosition(transformObj))
         {
-            transform.Rotate(-axis * 90); // Отменить вращение
+            transformObj.Rotate(-axis * 90); // Отменить вращение
         }
     }
 
-    private bool IsValidPosition()
+    private bool IsValidPosition(Transform transformOb)
     {
-        foreach (Transform child in transform)
+        foreach (Transform child in transformOb)
         {
             Vector3 position = MathfCalculations.RoundVector(child.position);
 
@@ -187,5 +250,6 @@ public class MovementFigure : MonoBehaviour
         GlobalEvents.OnMovementFinished?.Invoke(_tiles.Length);
 
         Destroy(gameObject); // Удаляем только объект фигуры, блоки остаются в сетке
+        Destroy(previewObject);
     }
 }
