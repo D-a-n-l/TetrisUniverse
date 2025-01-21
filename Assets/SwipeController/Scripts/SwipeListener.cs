@@ -19,6 +19,8 @@ namespace GG.Infrastructure.Utils.Swipe
 
         public SwipeListenerEvent OnSwipe;
 
+        public UnityEvent OnTouch;
+
         [SerializeField]
         private float _sensetivity = 10;
 
@@ -37,6 +39,8 @@ namespace GG.Infrastructure.Utils.Swipe
         private Vector3 _offset;
 
         private VectorToDirection _directions;
+
+        public bool _isTouch = true;
 
         public bool ContinuousDetection { get { return _continuousDetection; } set { _continuousDetection = value; } }
 
@@ -87,12 +91,18 @@ namespace GG.Infrastructure.Utils.Swipe
         {
             if (Input.GetMouseButtonDown(0))
             {
+                _isTouch = true;
+
                 InitSwipe();
             }
 
             if (_waitForSwipe && Input.GetMouseButton(0))
             {
                 CheckSwipe();
+            }
+            else if (Input.GetMouseButtonUp(0) && _isTouch == true)
+            {
+                OnTouch?.Invoke();
             }
 
             if (_continuousDetection == false)
@@ -128,6 +138,8 @@ namespace GG.Infrastructure.Utils.Swipe
             {
                 if (OnSwipe != null)
                 {
+                    _isTouch = false;
+
                     OnSwipe.Invoke(_directions.GetSwipeId(_offset));
                 }
 

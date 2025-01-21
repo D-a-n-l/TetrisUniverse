@@ -67,6 +67,8 @@ public class MovementFigure : MonoBehaviour
         {
             SwipeListener.Instance.OnSwipe.AddListener(OnSwipe);
 
+            SwipeListener.Instance.OnTouch.AddListener(() => Rotate(Vector3.forward));
+
             return;
         }
 
