@@ -92,7 +92,10 @@ public class MovementFigure : MonoBehaviour
                 UpdatePreviewObject();
                 if (!IsValidPosition(previewObject.transform))
                 {
-                    previewObject.transform.Rotate(-Vector3.forward * 90); // Отменить вращение
+                    if (!TryWallKick(previewObject.transform))
+                    {
+                        previewObject.transform.Rotate(-Vector3.forward * 90); // Отменить вращение
+                    }
                 }
             });
 
@@ -124,14 +127,30 @@ public class MovementFigure : MonoBehaviour
         PlayerButtons.Instance.RotateX.onClick.AddListener(() =>
         {
             RotateA(Vector3.left, transform);
-            RotateA(Vector3.left, previewObject.transform);
+            previewObject.transform.Rotate(Vector3.left * 90);
+            UpdatePreviewObject();
+            if (!IsValidPosition(previewObject.transform))
+            {
+                if (!TryWallKick(previewObject.transform))
+                {
+                    previewObject.transform.Rotate(-Vector3.left * 90); // Отменить вращение
+                }
+            }
 
         });
 
         PlayerButtons.Instance.RotateZ.onClick.AddListener(() =>
         {
             RotateA(Vector3.forward, transform);
-            RotateA(Vector3.forward, previewObject.transform);
+            previewObject.transform.Rotate(Vector3.forward * 90);
+            UpdatePreviewObject();
+            if (!IsValidPosition(previewObject.transform))
+            {
+                if (!TryWallKick(previewObject.transform))
+                {
+                    previewObject.transform.Rotate(-Vector3.forward * 90); // Отменить вращение
+                }
+            }
         });
 
         PlayerButtons.Instance.Fall.OnPressed.AddListener(Fall);
@@ -156,6 +175,31 @@ public class MovementFigure : MonoBehaviour
         UpdatePreviewObject();
     }
 
+    private bool TryWallKick(Transform transformObj)
+    {
+        // Возможные направления для сдвига
+        Vector3[] offsets = new Vector3[]
+        {
+        Vector3.left,     // Сдвиг влево
+        Vector3.right,    // Сдвиг вправо
+        };
+
+        foreach (Vector3 offset in offsets)
+        {
+            transformObj.position += offset;
+
+            if (IsValidPosition(transformObj))
+            {
+                // Если сдвиг удался, оставить фигуру в новом положении
+                return true;
+            }
+
+            // Откат, если сдвиг не помог
+            transformObj.position -= offset;
+        }
+
+        return false; // Не удалось сдвинуть
+    }
 
 
     private Material CreatePreviewMaterial()
@@ -213,7 +257,10 @@ public class MovementFigure : MonoBehaviour
 
         if (!IsValidPosition(transformObj))
         {
-            transformObj.Rotate(-axis * 90); // Отменить вращение
+            if (!TryWallKick(transformObj))
+            {
+                transformObj.Rotate(-axis * 90); // Отменить вращение
+            }
         }
     }
 
