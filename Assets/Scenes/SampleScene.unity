@@ -1575,6 +1575,7 @@ MonoBehaviour:
   _sensetivity: 10
   _continuousDetection: 1
   _swipeDetectionMode: 3
+  _minMoveDistance: 10
   _isTouch: 1
 --- !u!4 &481239893
 Transform:

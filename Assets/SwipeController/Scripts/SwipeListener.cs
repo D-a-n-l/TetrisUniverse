@@ -5,19 +5,13 @@ using UnityEngine.Events ;
 
 namespace GG.Infrastructure.Utils.Swipe 
 {
-    [Serializable]
-    public class SwipeListenerEvent : UnityEvent<string>
-    {
-
-    }
-
     public class SwipeListener : MonoBehaviour
     {
         public static SwipeListener Instance;
 
         public UnityEvent OnSwipeCancelled;
 
-        public SwipeListenerEvent OnSwipe;
+        public UnityEvent<string> OnSwipe;
 
         public UnityEvent OnTouch;
 
@@ -32,7 +26,7 @@ namespace GG.Infrastructure.Utils.Swipe
 
         private bool _waitForSwipe = true;
 
-        private float _minMoveDistance = 0.1f;
+        public float _minMoveDistance = 0.1f;
 
         private Vector3 _swipeStartPoint;
 
@@ -68,6 +62,15 @@ namespace GG.Infrastructure.Utils.Swipe
         private void Awake()
         {
             Instance = this;
+        }
+
+        public void RemoveAllListener()
+        {
+            OnSwipe.RemoveAllListeners();
+
+            OnTouch.RemoveAllListeners();
+
+            OnSwipeCancelled.RemoveAllListeners();
         }
 
         private void Start()
@@ -133,7 +136,7 @@ namespace GG.Infrastructure.Utils.Swipe
         private void CheckSwipe()
         {
             _offset = Input.mousePosition - _swipeStartPoint;
-
+            
             if (_offset.magnitude >= _minMoveDistance)
             {
                 if (OnSwipe != null)

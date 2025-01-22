@@ -18,11 +18,19 @@ public class MovementFigure : MonoBehaviour
 
     private WaitForSeconds _waitFall;
 
-    private Vector3 _directionFall = new Vector3(0, -1, 0);
-
     private GameObject[] ghostBlocks; // Массив для хранения "призрачных" блоков
 
+    private Vector3[] _offsets = new Vector3[]
+    {
+        Vector3.left,
+        Vector3.right,
+    };
+
     private bool _isSwipe = false;
+
+    private bool _isMove = true;
+
+    private bool _isFirst = true;
 
     [Inject]
     private void Construct(TetrisGrid grid)
@@ -49,9 +57,14 @@ public class MovementFigure : MonoBehaviour
                 renderer.material = CreatePreviewMaterial();
             }
         }
+
+        UpdatePreviewObject();
     }
     private void OnSwipe(string swipe)
     {
+        if (_isMove == false)
+            return;
+
         switch (swipe)
         {
             case "Left":
@@ -70,15 +83,23 @@ public class MovementFigure : MonoBehaviour
                 Move(Vector2.down);
                 break;
         }
+
+        UpdatePreviewObject();
     }
 
     private void Start()
     {
         _waitFall = new WaitForSeconds(_timeFall);
+
+        PlayerButtons.Instance.RemoveAllListeners();
+
+        SwipeListener.Instance.RemoveAllListener();
         CreatePreviewObject();
         StopAllCoroutines();
 
         StartCoroutine(FallByTime());
+
+        StartCoroutine(Check());
 
         if (_isSwipe == true)
         {
@@ -86,17 +107,12 @@ public class MovementFigure : MonoBehaviour
 
             SwipeListener.Instance.OnTouch.AddListener(() =>
             {
-                RotateA(Vector3.forward, transform);
+                if (_isMove == false)
+                    return;
 
-                previewObject.transform.Rotate(Vector3.forward * 90);
-                UpdatePreviewObject();
-                if (!IsValidPosition(previewObject.transform))
-                {
-                    if (!TryWallKick(previewObject.transform))
-                    {
-                        previewObject.transform.Rotate(-Vector3.forward * 90); // Отменить вращение
-                    }
-                }
+                Rotate(transform, Vector3.forward, false);
+
+                Rotate(previewObject.transform, Vector3.forward, true);
             });
 
             return;
@@ -126,31 +142,16 @@ public class MovementFigure : MonoBehaviour
 
         PlayerButtons.Instance.RotateX.onClick.AddListener(() =>
         {
-            RotateA(Vector3.left, transform);
-            previewObject.transform.Rotate(Vector3.left * 90);
-            UpdatePreviewObject();
-            if (!IsValidPosition(previewObject.transform))
-            {
-                if (!TryWallKick(previewObject.transform))
-                {
-                    previewObject.transform.Rotate(-Vector3.left * 90); // Отменить вращение
-                }
-            }
+            Rotate(transform, Vector3.left, false);
 
+            Rotate(previewObject.transform, Vector3.left, true);
         });
 
         PlayerButtons.Instance.RotateZ.onClick.AddListener(() =>
         {
-            RotateA(Vector3.forward, transform);
-            previewObject.transform.Rotate(Vector3.forward * 90);
-            UpdatePreviewObject();
-            if (!IsValidPosition(previewObject.transform))
-            {
-                if (!TryWallKick(previewObject.transform))
-                {
-                    previewObject.transform.Rotate(-Vector3.forward * 90); // Отменить вращение
-                }
-            }
+            Rotate(transform, Vector3.forward, false);
+
+            Rotate(previewObject.transform, Vector3.forward, true);
         });
 
         PlayerButtons.Instance.Fall.OnPressed.AddListener(Fall);
@@ -162,45 +163,37 @@ public class MovementFigure : MonoBehaviour
 
     private void Fall()
     {
-        if (!Move(_directionFall))
+        //if (_isFirst == true)
+        //{
+        //    CreatePreviewObject();
+
+        //    UpdatePreviewObject();
+
+        //    _isFirst = false;
+        //}
+
+        if (!Move(Vector3.down))
         {
             AddToGrid();
-
-
         }
     }
-    void Update()
+
+    private bool TryWallKick(Transform transformObject)
     {
-
-        UpdatePreviewObject();
-    }
-
-    private bool TryWallKick(Transform transformObj)
-    {
-        // Возможные направления для сдвига
-        Vector3[] offsets = new Vector3[]
+        foreach (Vector3 offset in _offsets)
         {
-        Vector3.left,     // Сдвиг влево
-        Vector3.right,    // Сдвиг вправо
-        };
+            transformObject.position += offset;
 
-        foreach (Vector3 offset in offsets)
-        {
-            transformObj.position += offset;
-
-            if (IsValidPosition(transformObj))
+            if (IsValidPosition(transformObject, Vector3.zero))
             {
-                // Если сдвиг удался, оставить фигуру в новом положении
-                return true;
+                return true; // Если сдвиг удался, оставить фигуру в новом положении
             }
 
-            // Откат, если сдвиг не помог
-            transformObj.position -= offset;
+            transformObject.position -= offset; // Откат, если сдвиг не помог
         }
 
         return false; // Не удалось сдвинуть
     }
-
 
     private Material CreatePreviewMaterial()
     {
@@ -212,23 +205,36 @@ public class MovementFigure : MonoBehaviour
 
     private void UpdatePreviewObject()
     {
-        if (previewObject == null) return;
+        if (previewObject == null) 
+            return;
 
         Vector3 startPosition = transform.position;
+
         previewObject.transform.position = startPosition;
 
         // Падение вниз до нижней точки
-        while (IsValidPosition(previewObject.transform))
+        while (IsValidPosition(previewObject.transform, Vector3.down))
         {
             previewObject.transform.position += Vector3.down;
         }
 
         // Откат на одну позицию вверх
-        previewObject.transform.position += Vector3.up;
+        //previewObject.transform.position += Vector3.down;
     }
 
+    public IEnumerator Check()
+    {
+        yield return new WaitForSeconds(0.1f);
 
-    public IEnumerator FallByTime()
+        if (!IsValidPosition(transform, Vector3.down))
+        {
+            _isMove = false;
+        }
+
+        StartCoroutine(Check());
+    }
+
+    private IEnumerator FallByTime()
     {
         yield return _waitFall;
 
@@ -241,7 +247,7 @@ public class MovementFigure : MonoBehaviour
     {
         transform.position += direction;
 
-        if (!IsValidPosition(transform))
+        if (!IsValidPosition(transform, Vector3.zero))
         {
             transform.position -= direction; // Вернуть на место
 
@@ -251,24 +257,30 @@ public class MovementFigure : MonoBehaviour
         return true;
     }
 
-    private void RotateA(Vector3 axis, Transform transformObj)
+    private void Rotate(Transform transformObject, Vector3 axis, bool isPreviewObject)
     {
-        transformObj.Rotate(axis * 90);
+        transformObject.Rotate(axis * 90);
 
-        if (!IsValidPosition(transformObj))
+        if (isPreviewObject == true)
+            UpdatePreviewObject();
+
+        if (!IsValidPosition(transform, Vector3.zero))
         {
-            if (!TryWallKick(transformObj))
+            if (!TryWallKick(transform))
             {
-                transformObj.Rotate(-axis * 90); // Отменить вращение
+                transformObject.Rotate(-axis * 90); // Отменить вращение
+
+                //if (isPreviewObject == true)
+                //    UpdatePreviewObject();
             }
         }
     }
 
-    private bool IsValidPosition(Transform transformOb)
+    private bool IsValidPosition(Transform transformObject, Vector3 increasePosition)
     {
-        foreach (Transform child in transformOb)
+        foreach (Transform child in transformObject)
         {
-            Vector3 position = MathfCalculations.RoundVector(child.position);
+            Vector3 position = MathfCalculations.RoundVector(child.position + increasePosition);
 
             if (!_grid.IsInsideGrid(position) || _grid.IsCellOccupied(position))
             {
