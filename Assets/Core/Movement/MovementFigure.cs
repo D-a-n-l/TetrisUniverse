@@ -210,8 +210,6 @@ public class MovementFigure : MonoBehaviour
                 Move(Vector2.down);
                 break;
         }
-
-        UpdatePreviewObject();
     }
 
     private bool Move(Vector3 direction)
@@ -227,6 +225,8 @@ public class MovementFigure : MonoBehaviour
 
             return false;
         }
+
+        UpdatePreviewObject();
 
         return true;
     }
