@@ -44,7 +44,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 155773408561533594}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec4a17f2c919e3b428d756083f29f04c, type: 3}
   m_Name: 
@@ -67,7 +67,6 @@ MonoBehaviour:
   - {fileID: 1481404455673163720}
   - {fileID: 7948748630839584104}
   - {fileID: 5319796098067857534}
-  _isMove: 1
 --- !u!1 &623598900624946089
 GameObject:
   m_ObjectHideFlags: 0

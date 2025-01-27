@@ -2,5 +2,5 @@ using UnityEngine;
 
 public class InjectObject : MonoBehaviour
 {
-    private void Start() => SceneContextSingleton.Instance.Container.InjectGameObject(gameObject);
+    private void Awake() => SceneContextSingleton.Instance.Container.InjectGameObject(gameObject);
 }
